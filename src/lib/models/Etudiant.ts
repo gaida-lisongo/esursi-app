@@ -34,17 +34,7 @@ export interface IParcours extends Document {
     document: string;
     date: string;
     etablissement: Schema.Types.ObjectId;
-}
-
-export interface IPaiement extends Document {
-    etudiant: Schema.Types.ObjectId;
-    montant: number;
-    date: string;
-    frais: Schema.Types.ObjectId;
-    status: 'NO' | 'PENDING' | 'OK';
-    orderNumber: string;
-    tranche: string;
-    description?: string[];
+    tranches: Schema.Types.ObjectId[];
 }
 
 const EtudiantSchema: Schema = new Schema({
@@ -83,25 +73,12 @@ const ParcoursSchema: Schema = new Schema({
     etablissement: { type: Schema.Types.ObjectId, ref: 'Etablissement', required: true },
 });
 
-const PaiementSchema: Schema = new Schema({
-    etudiant: { type: Schema.Types.ObjectId, ref: 'Etudiant', required: true },
-    montant: { type: Number, required: true },
-    date: { type: String, required: true },
-    frais: { type: Schema.Types.ObjectId, ref: 'Frais', required: true },
-    status: { type: String, enum: ['NO', 'PENDING', 'OK'], default: 'PENDING' },
-    orderNumber: { type: String, required: true },
-    tranche: { type: String, required: true },
-    description: [{ type: String }],
-});
-
 const Etudiant: Model<IEtudiant> = mongoose.models.Etudiant || mongoose.model<IEtudiant>('Etudiant', EtudiantSchema);
 const DossierEtudiant: Model<IDossierEtudiant> = mongoose.models.DossierEtudiant || mongoose.model<IDossierEtudiant>('DossierEtudiant', DossierEtudiantSchema);
 const Parcours: Model<IParcours> = mongoose.models.Parcours || mongoose.model<IParcours>('Parcours', ParcoursSchema);
-const Paiement: Model<IPaiement> = mongoose.models.Paiement || mongoose.model<IPaiement>('Paiement', PaiementSchema);
 
 export {
     Etudiant,
     DossierEtudiant,
-    Parcours,
-    Paiement
+    Parcours
 }
