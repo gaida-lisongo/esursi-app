@@ -1,3 +1,5 @@
+"use server";
+
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
 

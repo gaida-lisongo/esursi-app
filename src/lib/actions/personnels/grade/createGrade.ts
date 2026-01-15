@@ -1,3 +1,5 @@
+"use server";
+
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
 
@@ -12,7 +14,17 @@ export async function createGrade(data: CreateGradeInput) {
         await dbConnect();
         const grade = new Grade(data);
         await grade.save();
-        return { success: true, data: grade };
+
+        // Convert to plain object and flatten _id
+        const result = grade.toObject();
+        return {
+            success: true,
+            data: {
+                ...result,
+                id: result._id.toString(),
+                _id: result._id.toString()
+            }
+        };
     } catch (error: any) {
         return { success: false, message: error.message || "Erreur création grade" };
     }

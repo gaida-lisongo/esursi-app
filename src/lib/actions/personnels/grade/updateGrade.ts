@@ -1,3 +1,5 @@
+"use server";
+
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
 
@@ -21,7 +23,15 @@ export async function updateGrade(data: UpdateGradeInput) {
 
         await grade.save();
 
-        return { success: true, data: grade };
+        const result = grade.toObject();
+        return {
+            success: true,
+            data: {
+                ...result,
+                id: result._id.toString(),
+                _id: result._id.toString()
+            }
+        };
     } catch (error: any) {
         return { success: false, message: error.message || "Erreur mise à jour grade" };
     }
