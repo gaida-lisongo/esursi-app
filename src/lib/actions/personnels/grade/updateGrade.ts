@@ -2,6 +2,7 @@
 
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
+import { revalidatePath } from "next/cache";
 
 
 interface UpdateGradeInput {
@@ -22,6 +23,8 @@ export async function updateGrade(data: UpdateGradeInput) {
         grade.personnel = data.personnel;
 
         await grade.save();
+
+        revalidatePath("/(admin)/(personnel)/grades");
 
         const result = grade.toObject();
         return {

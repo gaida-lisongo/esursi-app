@@ -2,6 +2,7 @@
 
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
+import { revalidatePath } from "next/cache";
 
 
 export async function deleteGrade(gradeId: string) {
@@ -11,6 +12,8 @@ export async function deleteGrade(gradeId: string) {
         if (!grade) return { success: false, message: "Grade non trouvé" };
 
         await Grade.findByIdAndDelete(gradeId);
+
+        revalidatePath("/(admin)/(personnel)/grades");
 
         return { success: true };
     } catch (error: any) {

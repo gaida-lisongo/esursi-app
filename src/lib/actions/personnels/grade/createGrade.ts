@@ -2,6 +2,7 @@
 
 import Grade from "@/lib/models/Grade";
 import dbConnect from "@/lib/connect";
+import { revalidatePath } from "next/cache";
 
 interface CreateGradeInput {
     designation: string;
@@ -14,6 +15,8 @@ export async function createGrade(data: CreateGradeInput) {
         await dbConnect();
         const grade = new Grade(data);
         await grade.save();
+
+        revalidatePath("/(admin)/(personnel)/grades");
 
         // Convert to plain object and flatten _id
         const result = grade.toObject();
