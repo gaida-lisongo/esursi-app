@@ -12,8 +12,10 @@ interface AuthManagerProps {
 export const AuthManager = ({ authorizations, onSave, onClose }: AuthManagerProps) => {
     const [auths, setAuths] = React.useState([...authorizations]);
 
+    const ROLES = ["SGACAD", "SGR", "SGADMIN", "DG", "AB", "PERSONNEL", "ETABLISSEMENT", "FINANCE", "ALL"];
+
     const addAuth = () => {
-        setAuths([...auths, { role: "", secureKey: "", status: "PENDING" }]);
+        setAuths([...auths, { role: ROLES[0], secureKey: "", status: "PENDING" }]);
     };
 
     const removeAuth = (index: number) => {
@@ -47,12 +49,15 @@ export const AuthManager = ({ authorizations, onSave, onClose }: AuthManagerProp
                         <div key={index} className="grid grid-cols-12 gap-3 p-4 rounded-2xl bg-gray-50 dark:bg-gray-700/50 items-end">
                             <div className="col-span-12 md:col-span-4 space-y-1">
                                 <label className="text-[10px] font-bold text-gray-500 uppercase">Rôle</label>
-                                <input
+                                <select
                                     value={auth.role}
                                     onChange={(e) => handleChange(index, "role", e.target.value)}
-                                    placeholder="ex: ADMIN"
                                     className="w-full p-2 border rounded-xl dark:bg-gray-700 dark:border-gray-600"
-                                />
+                                >
+                                    {ROLES.map(role => (
+                                        <option key={role} value={role}>{role}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="col-span-12 md:col-span-4 space-y-1">
                                 <label className="text-[10px] font-bold text-gray-500 uppercase">Secure Key</label>

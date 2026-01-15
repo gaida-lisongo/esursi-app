@@ -1,4 +1,4 @@
-import CrudManager from "@/components/common/CrudManager";
+import CardCrudManager from "@/components/common/CardCrudManager";
 import { getProvinces } from "@/lib/actions/personnels/province/getProvinces";
 import { CreateProvinceForm, UpdateProvinceForm, DeleteProvinceForm } from "@/components/personnels/province/ProvinceForms";
 import type { Metadata } from "next";
@@ -23,9 +23,9 @@ const ProvincesPage = async () => {
     return (
         <div>
             <PageBreadcrumb pageTitle="Provinces" />
-            <CrudManager
+            <CardCrudManager
                 title="Provinces"
-                header={["code", "designation", "description"]}
+                header={["code", "designation", "actif"]}
                 items={initialItems}
                 searchKeys={["code", "designation"]}
                 CreateForm={CreateProvinceForm}

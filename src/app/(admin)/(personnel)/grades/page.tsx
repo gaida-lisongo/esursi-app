@@ -1,4 +1,4 @@
-import CrudManager from "@/components/common/CrudManager";
+import CardCrudManager from "@/components/common/CardCrudManager";
 import { getGrades } from "@/lib/actions/personnels/grade/getGrades";
 import {
     CreateGradeForm,
@@ -27,7 +27,7 @@ const GradesPage = async () => {
     return (
         <div>
             <PageBreadcrumb pageTitle="Grades" />
-            <CrudManager
+            <CardCrudManager
                 title="Grades"
                 header={["code", "designation", "personnel"]}
                 items={initialItems}
