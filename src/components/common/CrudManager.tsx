@@ -13,17 +13,17 @@ import Image from "next/image";
 
 type ItemType = Record<string, any>;
 
-interface CrudManagerProps {
+interface CrudManagerProps<T extends { id: string | number } & Record<string, any>> {
   title: string;
-  header: string[];
-  items: ItemType[];
+  header: (keyof T & string)[];
+  items: T[];
   CreateForm: React.ComponentType<{ onClose: () => void }>;
-  UpdateForm: React.ComponentType<{ item: ItemType; onClose: () => void }>;
-  DeleteForm: React.ComponentType<{ item: ItemType; onClose: () => void }>;
-  searchKeys?: string[];          // sur quelles clés faire la recherche (ex: ['name', 'category'])
+  UpdateForm: React.ComponentType<{ item: T; onClose: () => void }>;
+  DeleteForm: React.ComponentType<{ item: T; onClose: () => void }>;
+  searchKeys?: (keyof T & string)[];          // sur quelles clés faire la recherche (ex: ['name', 'category'])
 }
 
-export default function CrudManager({
+export default function CrudManager<T extends { id: string | number } & Record<string, any>>({
   title,
   header,
   items,
@@ -31,11 +31,11 @@ export default function CrudManager({
   UpdateForm,
   DeleteForm,
   searchKeys = [],
-}: CrudManagerProps) {
+}: CrudManagerProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredItems, setFilteredItems] = useState(items);
+  const [filteredItems, setFilteredItems] = useState<T[]>(items);
   const [mode, setMode] = useState<"list" | "show" | "update" | "delete">("list");
-  const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
+  const [selectedItem, setSelectedItem] = useState<T | null>(null);
 
   // Filtrage en fonction de la recherche
   React.useEffect(() => {
@@ -176,7 +176,7 @@ export default function CrudManager({
             ))}
             {filteredItems.length === 0 && (
               <TableRow>
-                <TableCell colSpan={header.length + 1} className="py-8 text-center text-gray-500 italic">
+                <TableCell className="py-8 text-center text-gray-500 italic">
                   Aucun élément trouvé
                 </TableCell>
               </TableRow>
