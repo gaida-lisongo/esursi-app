@@ -30,9 +30,9 @@ export default function CyclesPage() {
                 items={cycles}
                 isLoading={loading}
                 searchKeys={["code", "designation"]}
-                CreateForm={CreateCycleForm}
-                UpdateForm={UpdateCycleForm}
-                DeleteForm={DeleteCycleForm}
+                CreateForm={(props) => <CreateCycleForm {...props} onClose={() => { props.onClose(); loadData(); }} />}
+                UpdateForm={(props) => <UpdateCycleForm {...props} onClose={() => { props.onClose(); loadData(); }} />}
+                DeleteForm={(props) => <DeleteCycleForm {...props} onClose={() => { props.onClose(); loadData(); }} />}
                 customActions={(item) => (
                     <Link
                         href={`/programmes/${item.id}`}
