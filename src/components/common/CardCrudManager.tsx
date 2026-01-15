@@ -22,6 +22,7 @@ interface CardCrudManagerProps<T extends { id: string | number } & Record<string
     DeleteForm: React.ComponentType<{ item: T; onClose: () => void }>;
     searchKeys?: (keyof T & string)[];
     isLoading?: boolean;
+    customActions?: (item: T) => React.ReactNode;
 }
 
 const SearchSVG = () => (
@@ -39,6 +40,7 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
     DeleteForm,
     searchKeys = [],
     isLoading = false,
+    customActions,
 }: CardCrudManagerProps<T>) {
     const { showNotification } = useNotification();
     const [searchTerm, setSearchTerm] = useState("");
@@ -174,6 +176,7 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
 
                             {/* Actions */}
                             <div className="flex items-center justify-end gap-2 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-50 dark:border-gray-800">
+                                {customActions && customActions(item)}
                                 <button
                                     onClick={() => { setSelectedItem(item); setMode("update"); }}
                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
@@ -210,8 +213,8 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
                                 key={i}
                                 onClick={() => setCurrentPage(i + 1)}
                                 className={`w-10 h-10 rounded-2xl text-sm font-bold transition-all ${currentPage === i + 1
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                                        : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
+                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                                    : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
                                     }`}
                             >
                                 {i + 1}
