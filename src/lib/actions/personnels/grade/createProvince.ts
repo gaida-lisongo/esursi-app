@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/connect';
 import Province from '@/lib/models/Province';
+import { revalidatePath } from 'next/cache';
 
 type CreateProvinceInput = {
     designation: string;
@@ -25,6 +26,8 @@ export async function createProvince(input: CreateProvinceInput) {
             ...input,
             actif: true,
         });
+
+        revalidatePath('/provinces');
 
         return {
             success: true,

@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/connect';
 import Province from '@/lib/models/Province';
+import { revalidatePath } from 'next/cache';
 
 type UpdateProvinceInput = {
     provinceId: string;
@@ -35,6 +36,7 @@ export async function updateProvince(input: UpdateProvinceInput) {
 
         Object.assign(province, input);
         await province.save();
+        revalidatePath('/provinces');
 
         return {
             success: true,

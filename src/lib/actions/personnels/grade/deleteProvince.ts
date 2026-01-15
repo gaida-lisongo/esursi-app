@@ -2,6 +2,7 @@
 
 import dbConnect from '@/lib/connect';
 import Province from '@/lib/models/Province';
+import { revalidatePath } from 'next/cache';
 
 export async function deleteProvince(provinceId: string) {
     try {
@@ -17,6 +18,7 @@ export async function deleteProvince(provinceId: string) {
 
         province.actif = false;
         await province.save();
+        revalidatePath('/provinces');
 
         return {
             success: true,

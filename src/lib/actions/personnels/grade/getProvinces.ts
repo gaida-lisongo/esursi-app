@@ -7,7 +7,7 @@ export async function getProvinces() {
     try {
         await dbConnect();
 
-        const provinces = await Province.find()
+        const provinces = await Province.find({ actif: true })
             .sort({ designation: 1 })
             .lean();
 
