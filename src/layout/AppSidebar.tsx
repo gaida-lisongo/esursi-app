@@ -77,6 +77,7 @@ const navItems: NavItem[] = [
     icon: <DollarLineIcon />,
     subItems: [
       { name: "Frais Académiques", path: "/frais", pro: false },
+      { name: "Suivi & Reporting", path: "/reporting", pro: false },
     ],
   },
 ];

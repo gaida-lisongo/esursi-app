@@ -28,6 +28,7 @@ export interface IEtablissement extends Document {
         annee: Schema.Types.ObjectId;
     }[];
     actif: boolean;
+    province: Schema.Types.ObjectId;
 }
 
 const EtablissementSchema: Schema = new Schema<IEtablissement>({
@@ -38,6 +39,7 @@ const EtablissementSchema: Schema = new Schema<IEtablissement>({
     email: { type: String },
     telephone: { type: String },
     adresse: { type: String },
+    province: { type: Schema.Types.ObjectId, ref: 'Province', required: true },
     photo: [{ type: String }],
     nRef: [{ document: { type: String, required: true }, date: { type: String, required: true }, reference: { type: String, required: true } }],
     coge: [{
