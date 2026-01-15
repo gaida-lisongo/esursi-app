@@ -17,9 +17,9 @@ interface CardCrudManagerProps<T extends { id: string | number } & Record<string
     title: string;
     header: (keyof T & string)[];
     items: T[];
-    CreateForm: React.ComponentType<{ onClose: () => void }>;
-    UpdateForm: React.ComponentType<{ item: T; onClose: () => void }>;
-    DeleteForm: React.ComponentType<{ item: T; onClose: () => void }>;
+    CreateForm?: React.ComponentType<{ onClose: () => void }>;
+    UpdateForm?: React.ComponentType<{ item: T; onClose: () => void }>;
+    DeleteForm?: React.ComponentType<{ item: T; onClose: () => void }>;
     searchKeys?: (keyof T & string)[];
     isLoading?: boolean;
     customActions?: (item: T) => React.ReactNode;
@@ -112,13 +112,6 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button
-                        onClick={() => setMode("create")}
-                        className="flex items-center gap-2 px-5 py-2.5 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02]"
-                    >
-                        <PlusIcon className="w-5 h-5" />
-                        Nouveau
-                    </button>
                 </div>
             </div>
 
@@ -175,22 +168,32 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center justify-end gap-2 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-50 dark:border-gray-800">
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                 {customActions && customActions(item)}
-                                <button
-                                    onClick={() => { setSelectedItem(item); setMode("update"); }}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
-                                    title="Modifier"
-                                >
-                                    <PencilIcon className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={() => { setSelectedItem(item); setMode("delete"); }}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-                                    title="Supprimer"
-                                >
-                                    <TrashBinIcon className="w-5 h-5" />
-                                </button>
+                                {UpdateForm && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedItem(item);
+                                            setMode("update");
+                                        }}
+                                        className="p-2.5 bg-white dark:bg-gray-800 text-blue-600 rounded-xl shadow-sm hover:scale-110 active:scale-95 transition-all"
+                                        title="Modifier"
+                                    >
+                                        <PencilIcon className="w-4 h-4" />
+                                    </button>
+                                )}
+                                {DeleteForm && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedItem(item);
+                                            setMode("delete");
+                                        }}
+                                        className="p-2.5 bg-white dark:bg-gray-800 text-red-500 rounded-xl shadow-sm hover:scale-110 active:scale-95 transition-all"
+                                        title="Supprimer"
+                                    >
+                                        <TrashBinIcon className="w-4 h-4" />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -235,9 +238,9 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
             {mode !== "list" && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        {mode === "create" && <CreateForm onClose={() => handleClose()} />}
-                        {mode === "update" && selectedItem && <UpdateForm item={selectedItem} onClose={() => handleClose()} />}
-                        {mode === "delete" && selectedItem && <DeleteForm item={selectedItem} onClose={() => handleClose()} />}
+                        {mode === "create" && CreateForm && <CreateForm onClose={() => handleClose()} />}
+                        {mode === "update" && selectedItem && UpdateForm && <UpdateForm item={selectedItem} onClose={() => handleClose()} />}
+                        {mode === "delete" && selectedItem && DeleteForm && <DeleteForm item={selectedItem} onClose={() => handleClose()} />}
                     </div>
                 </div>
             )}

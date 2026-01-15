@@ -1,0 +1,121 @@
+"use server";
+
+import dbConnect from "@/lib/connect";
+import { Frais, Quota } from "@/lib/models/Frais";
+import { revalidatePath } from "next/cache";
+
+// --- FRAIS ACTIONS ---
+
+export async function getFraisByAnnee(anneeId: string) {
+    try {
+        await dbConnect();
+        const items = await Frais.find({ annee: anneeId as any }).populate("repartition").lean();
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(items)).map((f: any) => ({
+                ...f,
+                id: f._id.toString(),
+                repartitionCount: f.repartition?.length || 0
+            })),
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function createFrais(data: any) {
+    try {
+        await dbConnect();
+        const item = new Frais({ ...data, actif: true });
+        await item.save();
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Frais créés" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function updateFrais(id: string, data: any) {
+    try {
+        await dbConnect();
+        await Frais.findByIdAndUpdate(id, data);
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Frais mis à jour" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function deleteFrais(id: string) {
+    try {
+        await dbConnect();
+        // Delete associated quotas? User didn't specify, but often good. 
+        // For now just the fee.
+        await Frais.findByIdAndDelete(id);
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Frais supprimés" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+// --- QUOTA ACTIONS ---
+
+export async function getQuotasByFrais(fraisId: string) {
+    try {
+        await dbConnect();
+        const frais = await Frais.findById(fraisId).populate("repartition").lean();
+        if (!frais) throw new Error("Frais non trouvés");
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(frais.repartition || [])).map((q: any) => ({
+                ...q,
+                id: q._id.toString()
+            }))
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function addQuota(fraisId: string, quotaData: any) {
+    try {
+        await dbConnect();
+        const quota = new Quota(quotaData);
+        await quota.save();
+
+        await Frais.findByIdAndUpdate(fraisId, {
+            $push: { repartition: quota._id }
+        });
+
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Quota ajouté" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function updateQuota(id: string, data: any) {
+    try {
+        await dbConnect();
+        await Quota.findByIdAndUpdate(id, data);
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Quota mis à jour" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function removeQuota(fraisId: string, quotaId: string) {
+    try {
+        await dbConnect();
+        await Quota.findByIdAndDelete(quotaId);
+        await Frais.findByIdAndUpdate(fraisId, {
+            $pull: { repartition: quotaId }
+        });
+        revalidatePath("/(admin)/frais");
+        return { success: true, message: "Quota retiré" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}

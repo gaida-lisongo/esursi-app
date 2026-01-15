@@ -251,6 +251,18 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
                     </div>
                 )}
             </div>
+
+            {/* Footer */}
+            {!memberForm.mode && (
+                <div className="p-6 border-t border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 flex justify-end">
+                    <button
+                        onClick={onClose}
+                        className="px-8 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gray-200 dark:shadow-none"
+                    >
+                        Quitter
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

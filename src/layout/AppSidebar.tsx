@@ -17,6 +17,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  DollarLineIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 
@@ -69,6 +70,13 @@ const navItems: NavItem[] = [
       { name: "Cycles & Programmes", path: "/programmes", pro: false },
       { name: "Années Académiques", path: "/annees", pro: false },
       { name: "Établissements", path: "/etablissements", pro: false },
+    ],
+  },
+  {
+    name: "Finance",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "Frais Académiques", path: "/frais", pro: false },
     ],
   },
 ];

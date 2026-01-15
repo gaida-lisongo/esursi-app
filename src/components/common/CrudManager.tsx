@@ -22,6 +22,7 @@ interface CrudManagerProps<T extends { id: string | number } & Record<string, an
   DeleteForm?: React.ComponentType<{ item: T; onClose: () => void }>;
   searchKeys?: (keyof T & string)[];
   isLoading?: boolean;
+  customActions?: (item: T) => React.ReactNode;
 }
 
 export default function CrudManager<T extends { id: string | number } & Record<string, any>>({
@@ -33,6 +34,7 @@ export default function CrudManager<T extends { id: string | number } & Record<s
   DeleteForm,
   searchKeys = [],
   isLoading = false,
+  customActions,
 }: CrudManagerProps<T>) {
   const { showNotification } = useNotification();
   const [searchTerm, setSearchTerm] = useState("");
@@ -232,6 +234,7 @@ export default function CrudManager<T extends { id: string | number } & Record<s
                 ))}
                 <TableCell className="py-4 text-end">
                   <div className="flex justify-end gap-1">
+                    {customActions && customActions(item)}
                     <button
                       onClick={() => {
                         setSelectedItem(item);
