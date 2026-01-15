@@ -6,6 +6,7 @@ import { getEtablissementsByProvince, getProvinceDetails } from "@/lib/actions/f
 import CardCrudManager from "@/components/common/CardCrudManager";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { ArrowUpIcon, TableIcon, PieChartIcon } from "@/icons";
+import FinanceDashboard from "@/components/etablissement/Dashboard";
 
 export default function ProvinceReportingPage() {
     const { provinceId } = useParams();
@@ -47,21 +48,7 @@ export default function ProvinceReportingPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="bg-gray-50/50 dark:bg-gray-800/10 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2.5rem] h-32 flex items-center justify-center text-gray-300 font-bold italic">
-                            Widget en attente...
-                        </div>
-                    ))}
-                </div>
-
-                <div className="bg-white dark:bg-gray-900 rounded-[3rem] p-10 shadow-2xl shadow-indigo-500/5 text-center py-40 border border-gray-50 dark:border-gray-800">
-                    <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl flex items-center justify-center text-indigo-600 mx-auto mb-6">
-                        <PieChartIcon className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Analyse des Recettes & Dépenses</h3>
-                    <p className="text-gray-400 max-w-md mx-auto">Le module de suivi financier pour <b>{selectedEtab.sigle}</b> est en cours de configuration. Les données seront bientôt disponibles ici.</p>
-                </div>
+                <FinanceDashboard />
             </div>
         );
     }
