@@ -1,8 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/connect";
-import { Etablissement, Faculte } from "@/lib/models/Etablissement";
-import Agent from "@/lib/models/Agent";
+import { Etablissement, Faculte, Annee, Province, Agent } from "@/lib/models/index";
 import { revalidatePath } from "next/cache";
 
 // --- ETABLISSEMENT ACTIONS ---

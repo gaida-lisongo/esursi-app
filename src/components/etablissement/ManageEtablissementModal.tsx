@@ -37,12 +37,21 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
 
     const loadData = async () => {
         setLoading(true);
-        const [resDetails, resAgents] = await Promise.all([
-            getEtablissementFull(item.id),
-            getAgents()
-        ]);
-        if (resDetails.success) setDetails(resDetails.data);
-        if (resAgents.success) setAllAgents(resAgents.data);
+        console.log("Loading details for item:", item);
+        try {
+            const [resDetails, resAgents] = await Promise.all([
+                getEtablissementFull(item.id || item._id),
+                getAgents()
+            ]);
+            console.log("Details response:", resDetails);
+            if (resDetails.success) setDetails(resDetails.data);
+            else showNotification(resDetails.message, "error");
+
+            if (resAgents.success) setAllAgents(resAgents.data);
+        } catch (err: any) {
+            console.error("Error in loadData:", err);
+            showNotification(err.message, "error");
+        }
         setLoading(false);
     };
 
@@ -55,6 +64,8 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
             fonction: fd.get("fonction"),
             agent: memberForm.data.id || memberForm.data._id
         };
+
+        if (!details) return showNotification("Données non chargées", "error");
 
         let newCoge = [...(details.coge || [])];
         if (memberForm.mode === "add") {
@@ -74,7 +85,7 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
     };
 
     const handleRemoveMember = async (idx: number) => {
-        if (!confirm("Retirer ce membre ?")) return;
+        if (!confirm("Retirer ce membre ?") || !details) return;
         const newCoge = details.coge.filter((_: any, i: number) => i !== idx);
         const res = await updateCOGE(item.id, newCoge);
         if (res.success) {
@@ -90,6 +101,12 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
     ).slice(0, 5);
 
     if (loading) return <div className="p-20 flex justify-center bg-white dark:bg-gray-900 rounded-[2.5rem]"><Spinner size="lg" /></div>;
+    if (!details) return (
+        <div className="p-20 text-center bg-white dark:bg-gray-900 rounded-[2.5rem]">
+            <p className="text-red-500 font-bold">Impossible de charger les détails de l'établissement.</p>
+            <button onClick={onClose} className="mt-4 px-6 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl font-bold">Fermer</button>
+        </div>
+    );
 
     return (
         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[100vh]">
