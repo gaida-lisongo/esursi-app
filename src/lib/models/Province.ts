@@ -8,7 +8,7 @@ export interface IProvince extends Document {
 }
 
 const ProvinceSchema: Schema = new Schema({
-    nom: { type: String, required: true },
+    designation: { type: String, required: true },
     code: { type: String, required: true },
     description: { type: String },
     actif: { type: Boolean, default: true },
