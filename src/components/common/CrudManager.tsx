@@ -17,9 +17,9 @@ interface CrudManagerProps<T extends { id: string | number } & Record<string, an
   title: string;
   header: (keyof T & string)[];
   items: T[];
-  CreateForm: React.ComponentType<{ onClose: () => void }>;
-  UpdateForm: React.ComponentType<{ item: T; onClose: () => void }>;
-  DeleteForm: React.ComponentType<{ item: T; onClose: () => void }>;
+  CreateForm?: React.ComponentType<{ onClose: () => void }>;
+  UpdateForm?: React.ComponentType<{ item: T; onClose: () => void }>;
+  DeleteForm?: React.ComponentType<{ item: T; onClose: () => void }>;
   searchKeys?: (keyof T & string)[];
   isLoading?: boolean;
 }
@@ -100,11 +100,11 @@ export default function CrudManager<T extends { id: string | number } & Record<s
     if (mode === "list") return null;
 
     let component = null;
-    if (mode === "show") {
+    if (mode === "show" && CreateForm) {
       component = <CreateForm onClose={() => handleClose("Élément ajouté avec succès")} />;
-    } else if (mode === "update" && selectedItem) {
+    } else if (mode === "update" && selectedItem && UpdateForm) {
       component = <UpdateForm item={selectedItem} onClose={() => handleClose("Élément mis à jour avec succès")} />;
-    } else if (mode === "delete" && selectedItem) {
+    } else if (mode === "delete" && selectedItem && DeleteForm) {
       component = <DeleteForm item={selectedItem} onClose={() => handleClose("Élément supprimé avec succès")} />;
     }
 
@@ -135,16 +135,18 @@ export default function CrudManager<T extends { id: string | number } & Record<s
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setMode("show")}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center gap-2"
-            aria-label={`Ajouter un nouvel élément à ${title}`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Ajouter
-          </button>
+          {CreateForm && (
+            <button
+              onClick={() => setMode("show")}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors flex items-center gap-2"
+              aria-label={`Ajouter un nouvel élément à ${title}`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter
+            </button>
+          )}
           <div className="relative">
             <input
               type="text"

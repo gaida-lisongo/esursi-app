@@ -68,6 +68,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Cycles & Programmes", path: "/programmes", pro: false },
       { name: "Années Académiques", path: "/annees", pro: false },
+      { name: "Établissements", path: "/etablissements", pro: false },
     ],
   },
 ];
