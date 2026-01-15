@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { createProvince } from "@/lib/actions/personnels/grade/createProvince";
-import { updateProvince } from "@/lib/actions/personnels/grade/updateProvince";
-import { deleteProvince } from "@/lib/actions/personnels/grade/deleteProvince";
+import { createProvince } from "@/lib/actions/personnels/province/createProvince";
+import { updateProvince } from "@/lib/actions/personnels/province/updateProvince";
+import { deleteProvince } from "@/lib/actions/personnels/province/deleteProvince";
 import { useNotification } from "@/context/NotificationContext";
 
 type ProvinceItem = {

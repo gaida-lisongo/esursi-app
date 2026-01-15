@@ -1,5 +1,5 @@
 import CrudManager from "@/components/common/CrudManager";
-import { getProvinces } from "@/lib/actions/personnels/grade/getProvinces";
+import { getProvinces } from "@/lib/actions/personnels/province/getProvinces";
 import { CreateProvinceForm, UpdateProvinceForm, DeleteProvinceForm } from "@/components/personnels/province/ProvinceForms";
 import type { Metadata } from "next";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
