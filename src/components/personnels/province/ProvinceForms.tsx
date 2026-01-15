@@ -4,6 +4,7 @@ import React from "react";
 import { createProvince } from "@/lib/actions/personnels/grade/createProvince";
 import { updateProvince } from "@/lib/actions/personnels/grade/updateProvince";
 import { deleteProvince } from "@/lib/actions/personnels/grade/deleteProvince";
+import { useNotification } from "@/context/NotificationContext";
 
 type ProvinceItem = {
     id: string;
@@ -22,6 +23,7 @@ interface ItemFormProps extends FormProps {
 }
 
 export const CreateProvinceForm = ({ onClose }: FormProps) => {
+    const { showNotification } = useNotification();
     async function handleAction(formData: FormData) {
         const designation = formData.get("designation") as string;
         const code = formData.get("code") as string;
@@ -30,9 +32,8 @@ export const CreateProvinceForm = ({ onClose }: FormProps) => {
         const res = await createProvince({ designation, code, description });
 
         if (!res.success) {
-            alert(`Erreur création : ${res.message}`);
+            showNotification(`Erreur création : ${res.message}`, "error");
         } else {
-            alert("Province créée avec succès !");
             onClose?.();
         }
     }
@@ -54,6 +55,7 @@ export const CreateProvinceForm = ({ onClose }: FormProps) => {
 };
 
 export const UpdateProvinceForm = ({ item, onClose }: ItemFormProps) => {
+    const { showNotification } = useNotification();
     async function handleAction(formData: FormData) {
         const designation = formData.get("designation") as string;
         const code = formData.get("code") as string;
@@ -69,9 +71,8 @@ export const UpdateProvinceForm = ({ item, onClose }: ItemFormProps) => {
         });
 
         if (!res.success) {
-            alert(`Erreur mise à jour : ${res.message}`);
+            showNotification(`Erreur mise à jour : ${res.message}`, "error");
         } else {
-            alert("Province mise à jour avec succès !");
             onClose?.();
         }
     }
@@ -97,13 +98,13 @@ export const UpdateProvinceForm = ({ item, onClose }: ItemFormProps) => {
 };
 
 export const DeleteProvinceForm = ({ item, onClose }: ItemFormProps) => {
+    const { showNotification } = useNotification();
     async function handleAction() {
         const res = await deleteProvince(item.id);
 
         if (!res.success) {
-            alert(`Erreur suppression : ${res.message}`);
+            showNotification(`Erreur suppression : ${res.message}`, "error");
         } else {
-            alert("Province désactivée avec succès !");
             onClose?.();
         }
     }

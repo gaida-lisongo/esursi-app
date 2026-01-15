@@ -1,7 +1,13 @@
 import CrudManager from "@/components/common/CrudManager";
 import { getProvinces } from "@/lib/actions/personnels/grade/getProvinces";
 import { CreateProvinceForm, UpdateProvinceForm, DeleteProvinceForm } from "@/components/personnels/province/ProvinceForms";
+import type { Metadata } from "next";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
+export const metadata: Metadata = {
+    title: "Provinces | ESURSI-APP",
+    description: "Gestion des provinces",
+};
 type ProvinceItem = {
     id: string;
     code: string;
@@ -14,10 +20,9 @@ const ProvincesPage = async () => {
     const provincesData = await getProvinces();
     const initialItems: ProvinceItem[] = provincesData.success ? provincesData.data : [];
 
-    console.log("Data fetched", initialItems);
-
     return (
         <div>
+            <PageBreadcrumb pageTitle="Provinces" />
             <CrudManager
                 title="Provinces"
                 header={["code", "designation", "description"]}
