@@ -92,7 +92,7 @@ export const ManageEtablissementModal = ({ item, onClose }: { item: any, onClose
     if (loading) return <div className="p-20 flex justify-center bg-white dark:bg-gray-900 rounded-[2.5rem]"><Spinner size="lg" /></div>;
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[100vh]">
             {/* Header */}
             <div className="p-6 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between bg-blue-50/50 dark:bg-blue-900/10">
                 <div>

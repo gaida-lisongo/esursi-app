@@ -2,10 +2,18 @@
 
 import React from "react";
 import { createEtablissement, updateEtablissement } from "@/lib/actions/etablissement/actions";
+import { getProvinces } from "@/lib/actions/personnels/province/getProvinces";
 import { useNotification } from "@/context/NotificationContext";
 
 export const EtablissementForm = ({ item, onClose }: { item?: any, onClose: () => void }) => {
     const { showNotification } = useNotification();
+    const [provinces, setProvinces] = React.useState<any[]>([]);
+
+    React.useEffect(() => {
+        getProvinces().then(res => {
+            if (res.success && res.data) setProvinces(res.data);
+        });
+    }, []);
 
     async function action(fd: FormData) {
         const data = Object.fromEntries(fd);
@@ -16,7 +24,7 @@ export const EtablissementForm = ({ item, onClose }: { item?: any, onClose: () =
         if (res.success) onClose();
         else showNotification(res.message, "error");
     }
-
+    console.log("Province : ", provinces);
     return (
         <form action={action} className="p-8 space-y-4 bg-white dark:bg-gray-900 rounded-[2.5rem]">
             <h3 className="text-xl font-bold">{item ? "Modifier" : "Nouvel"} Établissement</h3>
@@ -30,6 +38,23 @@ export const EtablissementForm = ({ item, onClose }: { item?: any, onClose: () =
                     <input name="designation" defaultValue={item?.designation} placeholder="Nom complet" required className="w-full p-3 border rounded-2xl dark:bg-gray-800" />
                 </div>
             </div>
+
+            <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase">Province</label>
+                <select
+                    name="province"
+                    defaultValue={item?.province?._id || item?.province}
+                    value={item?.province?._id || item?.province}
+                    required
+                    className="w-full p-3 border rounded-2xl dark:bg-gray-800"
+                >
+                    <option value="">Sélectionner une province</option>
+                    {provinces.map(p => (
+                        <option key={p.id} value={p.id}>{p.designation}</option>
+                    ))}
+                </select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-400 uppercase">Email</label>

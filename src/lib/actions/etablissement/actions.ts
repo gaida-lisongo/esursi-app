@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 export async function getEtablissements() {
     try {
         await dbConnect();
-        const items = await Etablissement.find({}).lean();
+        const items = await Etablissement.find({}).populate("province").lean();
         return {
             success: true,
             data: JSON.parse(JSON.stringify(items)).map((a: any) => ({
@@ -91,7 +91,7 @@ export async function getEtablissementFull(id: string) {
 export async function getFacultesByEtablissement(etablissementId: string) {
     try {
         await dbConnect();
-        const items = await Faculte.find({ etablissement: etablissementId })
+        const items = await Faculte.find({ etablissement: etablissementId as any })
             .populate("programmes")
             .lean();
         return {

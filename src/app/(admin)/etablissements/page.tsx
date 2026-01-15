@@ -25,6 +25,7 @@ export default function EtablissementsPage() {
     const loadData = async () => {
         setLoading(true);
         const res = await getEtablissements();
+        console.log("Etablissements fetched : ", res);
         if (res.success) setItems(res.data);
         setLoading(false);
     };
@@ -41,6 +42,8 @@ export default function EtablissementsPage() {
             showNotification(res.message, "error");
         }
     };
+
+    console.log("Current Modal : ", modal);
 
     return (
         <div className="container mx-auto pb-10">
