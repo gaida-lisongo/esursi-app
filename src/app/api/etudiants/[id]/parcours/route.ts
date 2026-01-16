@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
 import { Parcours } from "@/lib/models/index";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         await dbConnect();
         const items = await Parcours.find({ etudiant: params.id as any })
@@ -15,7 +16,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         await dbConnect();
         const body = await req.json();
@@ -27,7 +29,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     // This assumes we might have multiple parcours items or we update a specific one.
     // Usually, for a sub-resource like this, we might need the parcoursId.
     // However, following the pattern:

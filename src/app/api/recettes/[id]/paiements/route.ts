@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
 import { Paiement } from "@/lib/models/index";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         await dbConnect();
         const items = await Paiement.find({ tranche: params.id as any }).populate("etudiant");
@@ -12,7 +13,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         await dbConnect();
         const body = await req.json();
