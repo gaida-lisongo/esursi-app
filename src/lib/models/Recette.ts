@@ -9,7 +9,6 @@ export interface ITranche extends Document {
 export interface IPaiement extends Document {
     etudiant: Schema.Types.ObjectId;
     montant: number;
-    date: string;
     status: 'NO' | 'PENDING' | 'OK';
     orderNumber: string;
     tranche: Schema.Types.ObjectId;
@@ -28,7 +27,6 @@ const Tranche: Model<ITranche> = mongoose.models.Tranche || mongoose.model<ITran
 const PaiementSchema: Schema = new Schema({
     etudiant: { type: Schema.Types.ObjectId, ref: 'Etudiant', required: true },
     montant: { type: Number, required: true },
-    date: { type: String, required: true },
     status: { type: String, enum: ['NO', 'PENDING', 'OK'], default: 'PENDING' },
     orderNumber: { type: String, required: true },
     tranche: { type: Schema.Types.ObjectId, ref: 'Tranche', required: true },
