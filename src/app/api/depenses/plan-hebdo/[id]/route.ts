@@ -8,7 +8,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
         await dbConnect();
         const item = await PlanHebdo.findById(params.id)
             .populate("lignes")
-            .populate("ordres");
+            .populate("ordres")
+            .populate("ordres.ligne");
         if (!item) return NextResponse.json({ success: false, message: "Non trouvé" }, { status: 404 });
         return NextResponse.json({ success: true, data: item });
     } catch (error: any) {
