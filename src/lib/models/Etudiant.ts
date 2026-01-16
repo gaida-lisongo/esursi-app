@@ -19,10 +19,12 @@ export interface IEtudiant extends Document {
 
 export interface IDossierEtudiant extends Document {
     etudiant: Schema.Types.ObjectId;
+    status: 'PENDING' | 'OK' | 'NO';
     scolarite: [{
         annee: string;
         document: string;
         date: string;
+        status: 'PENDING' | 'OK' | 'NO';
     }]
 }
 
@@ -56,10 +58,12 @@ const EtudiantSchema: Schema = new Schema({
 
 const DossierEtudiantSchema: Schema = new Schema({
     etudiant: { type: Schema.Types.ObjectId, ref: 'Etudiant', required: true },
+    status: { type: String, enum: ['PENDING', 'OK', 'NO'], default: 'PENDING' },
     scolarite: [{
         annee: { type: String, required: true },
         document: { type: String, required: true },
         date: { type: String, required: true },
+        status: { type: String, enum: ['PENDING', 'OK', 'NO'], default: 'PENDING' }
     }]
 });
 
