@@ -81,9 +81,21 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
     const params = await props.params;
     try {
         await dbConnect();
-        const item = await DossierEtudiant.findOneAndDelete({ etudiant: params.id as any });
-        if (!item) return NextResponse.json({ success: false, message: "Dossier non trouvé" }, { status: 404 });
-        return NextResponse.json({ success: true, message: "Dossier supprimé" });
+        const { searchParams } = new URL(req.url);
+        const documentId = searchParams.get("documentId");
+
+        if (!documentId) {
+            return NextResponse.json({ success: false, message: "ID du document requis. La suppression complète du dossier est interdite." }, { status: 400 });
+        }
+
+        const item = await DossierEtudiant.findOneAndUpdate(
+            { etudiant: params.id as any },
+            { $pull: { scolarite: { _id: documentId } } },
+            { new: true }
+        );
+
+        if (!item) return NextResponse.json({ success: false, message: "Dossier ou document non trouvé" }, { status: 404 });
+        return NextResponse.json({ success: true, data: item, message: "Document supprimé de la scolarité" });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
