@@ -2,7 +2,6 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface ILigne extends Document {
     designation: string;
-    montant: number;
     description?: string[];
 }
 
@@ -11,7 +10,7 @@ export interface IBudget extends Document {
     etablissement: Schema.Types.ObjectId;
     montant: number;
     annee: Schema.Types.ObjectId;
-    lignes?: Schema.Types.ObjectId[];
+    details?: { ligne: Schema.Types.ObjectId, credit: number }[];
 }
 
 export interface IPlanHebdo extends Document {
@@ -32,7 +31,6 @@ export interface IOrdre extends Document {
 
 const LigneSchema: Schema = new Schema({
     designation: { type: String, required: true },
-    montant: { type: Number, required: true },
     description: [{ type: String }],
 })
 
@@ -41,7 +39,7 @@ const BudgetSchema: Schema = new Schema({
     etablissement: { type: Schema.Types.ObjectId, ref: 'Etablissement', required: true },
     montant: { type: Number, required: true },
     annee: { type: Schema.Types.ObjectId, ref: 'Annee', required: true },
-    lignes: [{ type: Schema.Types.ObjectId, ref: 'Ligne' }],
+    details: [{ ligne: { type: Schema.Types.ObjectId, ref: 'Ligne' }, credit: { type: Number } }]
 })
 
 const PlanHebdoSchema: Schema = new Schema({

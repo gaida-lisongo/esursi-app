@@ -8,7 +8,8 @@ export async function GET() {
         const items = await Budget.find({})
             .populate("etablissement")
             .populate("annee")
-            .populate("lignes");
+            .populate("details")
+            .populate("details.ligne");
         return NextResponse.json({ success: true, data: items });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });

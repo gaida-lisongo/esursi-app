@@ -9,7 +9,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
         const item = await Budget.findById(params.id)
             .populate("etablissement")
             .populate("annee")
-            .populate("lignes");
+            .populate("details")
+            .populate("details.ligne");
         if (!item) return NextResponse.json({ success: false, message: "Non trouvé" }, { status: 404 });
         return NextResponse.json({ success: true, data: item });
     } catch (error: any) {
