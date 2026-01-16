@@ -6,6 +6,7 @@ import Province from './Province';
 import { Etudiant, DossierEtudiant, Parcours } from './Etudiant';
 import { Ligne, Budget, PlanHebdo, Ordre } from './Depense';
 import { Tranche, Paiement } from './Recette';
+import { Programme, Cycle } from './Programme';
 
 export {
     Annee,
@@ -24,5 +25,7 @@ export {
     Ligne,
     Budget,
     PlanHebdo,
-    Ordre
+    Ordre,
+    Programme,
+    Cycle
 };

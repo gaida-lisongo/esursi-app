@@ -9,6 +9,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
         const items = await Parcours.find({ etudiant: params.id as any })
             .populate("programme")
             .populate("annee")
+            .populate("tranche")
             .populate("etablissement");
         return NextResponse.json({ success: true, data: items });
     } catch (error: any) {

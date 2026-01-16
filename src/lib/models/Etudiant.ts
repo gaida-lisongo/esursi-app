@@ -33,8 +33,8 @@ export interface IParcours extends Document {
     programme: Schema.Types.ObjectId;
     annee: Schema.Types.ObjectId;
     decision: 'Admis' | 'Non Admis' | 'En attente';
-    document: string;
-    date: string;
+    document?: string;
+    status: 'OK' | 'PENDING' | 'NO';
     etablissement: Schema.Types.ObjectId;
     tranches: Schema.Types.ObjectId[];
 }
@@ -71,10 +71,11 @@ const ParcoursSchema: Schema = new Schema({
     etudiant: { type: Schema.Types.ObjectId, ref: 'Etudiant', required: true },
     programme: { type: Schema.Types.ObjectId, ref: 'Programme', required: true },
     annee: { type: Schema.Types.ObjectId, ref: 'Annee', required: true },
-    decision: { type: String, enum: ['Admis', 'Non Admis', 'En attente'], required: true },
-    document: { type: String, required: true },
-    date: { type: String, required: true },
+    decision: { type: String, enum: ['Admis', 'Non Admis', 'En attente'], default: 'En attente', required: true },
+    document: { type: String },
+    status: { type: String, enum: ['PENDING', 'OK', 'NO'], default: 'NO' },
     etablissement: { type: Schema.Types.ObjectId, ref: 'Etablissement', required: true },
+    tranche: { type: Schema.Types.ObjectId, ref: 'Frais' },
 });
 
 const Etudiant: Model<IEtudiant> = mongoose.models.Etudiant || mongoose.model<IEtudiant>('Etudiant', EtudiantSchema);
