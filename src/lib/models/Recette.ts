@@ -31,7 +31,7 @@ const PaiementSchema: Schema = new Schema({
     date: { type: String, required: true },
     status: { type: String, enum: ['NO', 'PENDING', 'OK'], default: 'PENDING' },
     orderNumber: { type: String, required: true },
-    tranche: { type: String, required: true },
+    tranche: { type: Schema.Types.ObjectId, ref: 'Tranche', required: true },
     description: [{ type: String }],
 });
 
