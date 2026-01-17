@@ -91,28 +91,36 @@ export default function CardCrudManager<T extends { id: string | number } & Reco
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
             {/* Toolbar */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-2">
+            <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
+                    <h1 className="text-md font-bold text-gray-900 dark:text-white">{title}</h1>
                     <p className="text-sm text-gray-500">{processedItems.length} éléments trouvés</p>
                 </div>
+                {CreateForm && (
+                    <button
+                        onClick={() => setMode("create")}
+                        className="flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-2xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200 active:scale-95"
+                    >
+                        <PlusIcon className="w-5 h-5" />
+                        <span className="hidden sm:inline">Créer</span>
+                    </button>
+                )}
+            </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <SearchSVG />
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Rechercher..."
-                            className="pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:border-gray-800 dark:text-white w-full md:w-64 shadow-sm"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
+            {/* Search Bar */}
+            <div className="relative w-full">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                    <SearchSVG />
+                </span>
+                <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:border-gray-800 dark:text-white shadow-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
 
             {/* Content */}

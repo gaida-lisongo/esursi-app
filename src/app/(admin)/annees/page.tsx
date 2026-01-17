@@ -23,7 +23,6 @@ export default function AnneesPage() {
 
     return (
         <div className="container mx-auto pb-10">
-            <PageBreadcrumb pageTitle="Années Académiques" />
             <CardCrudManager
                 title="Liste des Années"
                 header={["debut", "fin", "description", "actif"]}

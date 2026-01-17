@@ -73,8 +73,6 @@ export default function AgentsPage() {
 
     return (
         <div className="container mx-auto pb-10">
-            <PageBreadcrumb pageTitle="Gestion des Agents" />
-
             <UserCrud
                 title="Agents"
                 items={agents}

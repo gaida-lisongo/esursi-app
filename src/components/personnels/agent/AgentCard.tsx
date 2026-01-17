@@ -30,93 +30,66 @@ export const AgentCard = ({ agent, onUpdate, onDelete, onManageAuth }: AgentCard
     const initials = `${agent.nom[0]}${agent.prenom[0]}`.toUpperCase();
 
     return (
-        <div className="relative overflow-hidden transition-all duration-300 bg-white border border-gray-100 rounded-3xl hover:shadow-xl dark:bg-gray-900 dark:border-gray-800 group">
-            {/* Header / Background Pattern */}
-            <div className="h-24 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
+        <div className="relative flex items-center gap-3 p-3 overflow-hidden transition-all duration-300 bg-white border border-gray-100 rounded-xl hover:shadow-lg dark:bg-gray-900 dark:border-gray-800 group">
+            {/* Photo / Initials */}
+            <div className="relative flex items-center justify-center flex-shrink-0 w-12 h-12 overflow-hidden border-2 border-gray-100 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-gray-800">
+                {agent.photo ? (
+                    <Image
+                        src={agent.photo}
+                        alt={agent.nom}
+                        fill
+                        className="object-cover"
+                    />
+                ) : (
+                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        {initials}
+                    </span>
+                )}
+            </div>
 
-            <div className="px-6 pb-6 -mt-12">
-                <div className="flex items-end justify-between mb-4">
-                    {/* Photo / Initials */}
-                    <div className="relative flex items-center justify-center w-24 h-24 overflow-hidden border-4 border-white rounded-2xl bg-gray-50 dark:bg-gray-800 dark:border-gray-900 shadow-md">
-                        {agent.photo ? (
-                            <Image
-                                src={agent.photo}
-                                alt={agent.nom}
-                                fill
-                                className="object-cover"
-                            />
-                        ) : (
-                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                {initials}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Status Badge */}
-                    <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full dark:bg-green-900/30 dark:text-green-500">
-                        Active Agent
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                        {agent.nom} {agent.prenom}
+                    </h3>
+                    <span className="px-1.5 py-0.5 text-[9px] font-semibold text-green-700 bg-green-100 rounded dark:bg-green-900/30 dark:text-green-500 flex-shrink-0">
+                        Actif
                     </span>
                 </div>
-
-                {/* Info */}
-                <div className="space-y-1">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
-                        {agent.nom} {agent.postNom} {agent.prenom}
-                    </h3>
-                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                        {agent.matricule}
-                    </p>
+                <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400 mb-1">
+                    {agent.matricule}
+                </p>
+                <div className="flex items-center gap-2 text-[9px] text-gray-500 dark:text-gray-400">
+                    <span className="truncate">{agent.grade?.code || "N/A"}</span>
+                    <span>•</span>
+                    <span className="truncate">{agent.province?.designation || "N/A"}</span>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                    <div className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                        <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">Grade</p>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{agent.grade?.code || "N/A"}</p>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                        <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">Province</p>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{agent.province?.designation || "N/A"}</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4 mt-6">
-                    <div className="flex -space-x-2 overflow-hidden">
-                        {agent.autorisation?.length > 0 ? (
-                            agent.autorisation.map((auth, i) => (
-                                <div key={i} className="inline-flex items-center justify-center w-8 h-8 rounded-full ring-2 ring-white dark:ring-gray-900 bg-blue-500 text-white text-[10px] font-bold uppercase" title={auth.role}>
-                                    {auth.role[0]}
-                                </div>
-                            ))
-                        ) : (
-                            <span className="text-xs text-gray-400 italic">Aucune autorisation</span>
-                        )}
-                    </div>
-                    <button
-                        onClick={() => onManageAuth(agent)}
-                        className="ml-auto p-2 text-gray-500 transition-colors hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl"
-                        title="Gérer les autorisations"
-                    >
-                        <LockIcon className="w-5 h-5" />
-                    </button>
-                </div>
-
-                {/* Actions Footer */}
-                <div className="flex items-center justify-between pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
-                    <button
-                        onClick={() => onUpdate(agent)}
-                        className="flex items-center gap-2 text-sm font-semibold text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                    >
-                        <PencilIcon className="w-4 h-4" />
-                        Modifier
-                    </button>
-                    <button
-                        onClick={() => onDelete(agent)}
-                        className="flex items-center gap-2 text-sm font-semibold text-red-500 transition-colors hover:text-red-600"
-                    >
-                        <TrashBinIcon className="w-4 h-4" />
-                        Désactiver
-                    </button>
-                </div>
+            {/* Actions */}
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                    onClick={() => onManageAuth(agent)}
+                    className="p-1.5 text-gray-500 transition-colors hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
+                    title="Autorisations"
+                >
+                    <LockIcon className="w-3.5 h-3.5" />
+                </button>
+                <button
+                    onClick={() => onUpdate(agent)}
+                    className="p-1.5 text-gray-500 transition-colors hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
+                    title="Modifier"
+                >
+                    <PencilIcon className="w-3.5 h-3.5" />
+                </button>
+                <button
+                    onClick={() => onDelete(agent)}
+                    className="p-1.5 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                    title="Désactiver"
+                >
+                    <TrashBinIcon className="w-3.5 h-3.5" />
+                </button>
             </div>
         </div>
     );
