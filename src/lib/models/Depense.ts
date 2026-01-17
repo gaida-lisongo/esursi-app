@@ -19,6 +19,7 @@ export interface IPlanHebdo extends Document {
     lignes: Schema.Types.ObjectId[];
     pieces: string[];
     ordres: Schema.Types.ObjectId[];
+    budget: Schema.Types.ObjectId;
 }
 
 export interface IOrdre extends Document {
@@ -48,7 +49,8 @@ const PlanHebdoSchema: Schema = new Schema({
     lignes: [{ type: Schema.Types.ObjectId, ref: 'Ligne' }],
     pieces: [{ type: String }],
     ordres: [{ type: Schema.Types.ObjectId, ref: 'Ordre' }],
-})
+    budget: { type: Schema.Types.ObjectId, ref: 'Budget', required: true },
+}, { timestamps: true })
 
 const OrdreSchema: Schema = new Schema({
     ligne: { type: Schema.Types.ObjectId, ref: 'Ligne', required: true },

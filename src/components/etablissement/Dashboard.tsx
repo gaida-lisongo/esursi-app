@@ -46,7 +46,7 @@ interface FinaceProps {
         annee: string;
         status: 'up' | 'down';
     }[];
-    budget: {
+    budget?: {
         annee: string;
         montant: number;
         designation: string;
@@ -54,18 +54,18 @@ interface FinaceProps {
             ligne: string;
             credit: number;
         }[];
-    }[];
-    plansHebdo: {
-        designation: string;
-        montant: number;
-        lignes: string[];
-        ordres: {
-            ligne: string;
-            beneficiaire: string;
+        planHebdo: {
+            designation: string;
             montant: number;
-            status: 'OK' | 'PENDING' | 'NO'
-        }[];
-    }[];
+            lignes: string[];
+            ordres: {
+                ligne: string;
+                beneficiaire: string;
+                montant: number;
+                status: 'OK' | 'PENDING' | 'NO'
+            }[];
+        }[]
+    };
     parcours: Parcours[];
     transactions: Transaction[];
 }
@@ -73,7 +73,6 @@ interface FinaceProps {
 export default function FinanceDashboard({
     metriques,
     budget,
-    plansHebdo,
     parcours,
     transactions
 }: FinaceProps) {
@@ -87,7 +86,7 @@ export default function FinanceDashboard({
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
                 <div className="lg:w-2/3 space-y-3">
                     <RevenuChart />
-                    <DecaissementCarousel />
+                    {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={budget} />}
                 </div>
                 <div className="lg:w-1/3">
                     {parcours.length > 0 && <TargetChart data={parcours} />}

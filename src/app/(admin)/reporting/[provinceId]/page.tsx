@@ -8,7 +8,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { ArrowUpIcon, TableIcon, PieChartIcon } from "@/icons";
 import FinanceDashboard from "@/components/etablissement/Dashboard";
 import { getAnnees } from "@/lib/actions/education/anneeActions";
-import { getFraisByAnnee, getParcoursByAnneeEtab, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
+import { getBudgetsByAnneeEtab, getFraisByAnnee, getParcoursByAnneeEtab, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
 
 export default function ProvinceReportingPage() {
     const { provinceId } = useParams();
@@ -19,6 +19,7 @@ export default function ProvinceReportingPage() {
     const [loading, setLoading] = useState(true);
     const [annees, setAnnees] = useState<any[]>([]);
     const [parcours, setParcours] = useState<any[]>([]);
+    const [budget, setBudget] = useState<any | null>(null);
 
     //Fetch data from Server Action
     const loadAnnees = async () => {
@@ -30,6 +31,7 @@ export default function ProvinceReportingPage() {
             const years = data.map(async (annee: any) => {
                 if (annee.actif) {
                     await loadParcours(annee?._id);
+                    await loadBudgets(annee?._id);
                 }
 
                 let transaction: { _id: any; annee: string; data: any[] } = {
@@ -78,6 +80,17 @@ export default function ProvinceReportingPage() {
         }
     }
 
+    const loadBudgets = async (anneeId: string) => {
+        const resBudgets = await getBudgetsByAnneeEtab(anneeId, selectedEtab?._id as string);
+
+        if (resBudgets.success) {
+            const data = resBudgets.data;
+            if (data) {
+                setBudget(data);
+            }
+        }
+    }
+
     useEffect(() => {
         const load = async () => {
             setLoading(true);
@@ -92,6 +105,8 @@ export default function ProvinceReportingPage() {
         load();
         loadAnnees();
     }, [provinceId, selectedEtab]);
+
+    console.log("Budget : ", budget)
 
     if (selectedEtab) {
         return (
@@ -113,8 +128,7 @@ export default function ProvinceReportingPage() {
 
                 <FinanceDashboard
                     metriques={[]}
-                    budget={[]}
-                    plansHebdo={[]}
+                    budget={budget}
                     parcours={parcours}
                     transactions={annees}
                 />

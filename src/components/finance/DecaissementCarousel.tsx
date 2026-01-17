@@ -1,94 +1,177 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
     DollarLineIcon,
     ArrowRightIcon,
     DownloadIcon,
     ListIcon,
     ChevronLeftIcon,
-    ChevronDownIcon
+    ChevronDownIcon,
+    CloseIcon
 } from "@/icons";
+import Badge from "../ui/badge/Badge";
 
-const FAKE_DECAISSEMENTS = [
-    {
-        id: "1",
-        periode: "Janvier 2026",
-        dateCreation: "15 Janv 2026",
-        montant: 12500,
-        pourcentage: 85,
-        type: "Fonctionnement"
-    },
-    {
-        id: "2",
-        periode: "Février 2026",
-        dateCreation: "10 Janv 2026",
-        montant: 8400,
-        pourcentage: 45,
-        type: "Investissement"
-    },
-    {
-        id: "3",
-        periode: "Mars 2026",
-        dateCreation: "05 Janv 2026",
-        montant: 22000,
-        pourcentage: 92,
-        type: "Salaires"
-    },
-    {
-        id: "4",
-        periode: "Avril 2026",
-        dateCreation: "01 Janv 2026",
-        montant: 15750,
-        pourcentage: 60,
-        type: "Social"
-    }
-];
+interface Ordre {
+    _id: string;
+    beneficiaire: string;
+    description: string[];
+    montant: number;
+    status: "OK" | "PENDING" | "NO";
+    ligne?: any;
+}
 
-const DecaissementCard = ({ item }: { item: any }) => {
+const OrdersModal = ({ orders, title, onClose }: { orders: Ordre[]; title: string; onClose: () => void }) => {
+    if (!orders) return null;
+
+    const exportToCSV = () => {
+        if (!orders.length) return;
+
+        const headers = ["Bénéficiaire", "Description", "Montant ($)", "Statut"];
+        const rows = orders.map(o => [
+            o.beneficiaire,
+            o.description?.join(" | ") || "",
+            o.montant,
+            o.status
+        ]);
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Ordres_Paiement_${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
-        <div className="min-w-[310px] bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-[2rem] p-5 transition-all duration-300 group hover:shadow-2xl hover:shadow-indigo-500/10">
-            <div className="flex justify-between items-start mb-2">
-                <div className="flex gap-1">
-                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
-                        <DollarLineIcon className="w-6 h-6" />
-                    </div>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 flex flex-col max-h-[85vh]">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/10 shrink-0">
                     <div>
-                        <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 leading-tight">{item.periode}</h4>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{item.dateCreation}</p>
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Ordres de Paiement</h3>
+                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">{title}</p>
                     </div>
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-500 font-bold"
+                    >
+                        X
+                    </button>
                 </div>
-                <div className="text-right">
-                    <p className="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{item.montant.toLocaleString()} $</p>
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                        <div className="w-12 h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]"
-                                style={{ width: `${item.pourcentage}%` }}
-                            ></div>
+
+                <div className="overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                    {orders.length > 0 ? orders.map((ordre) => (
+                        <div key={ordre._id} className="bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 flex items-center justify-between group hover:border-blue-200 transition-all">
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-sm font-black text-blue-600">
+                                    <DollarLineIcon className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h5 className="font-black text-gray-900 dark:text-white text-sm uppercase">{ordre.beneficiaire}</h5>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-0.5 line-clamp-1 italic">
+                                        {ordre.description?.[0] || "Aucune description"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right flex flex-col items-end gap-2">
+                                <p className="text-sm font-black text-gray-900 dark:text-white">{ordre.montant.toLocaleString()} $</p>
+                                <Badge color={ordre.status === 'OK' ? 'success' : ordre.status === 'PENDING' ? 'warning' : 'error'} size="sm">
+                                    {ordre.status}
+                                </Badge>
+                            </div>
                         </div>
-                        <span className="text-[10px] font-black text-blue-600">{item.pourcentage}%</span>
-                    </div>
+                    )) : (
+                        <div className="py-12 bg-gray-50 dark:bg-gray-800/10 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 text-center">
+                            <ListIcon className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-400 text-sm font-medium">Aucun ordre de paiement enregistré</p>
+                        </div>
+                    )}
                 </div>
-            </div>
 
-            <div className="h-px bg-gray-50 dark:bg-gray-800/50 mb-2"></div>
-
-            <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 active:scale-95">
-                    <ListIcon className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase">Ordres</span>
-                </button>
-                <button className="flex items-center justify-center gap-2 py-2.5 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all active:scale-95">
-                    <DownloadIcon className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase">Justifs</span>
-                </button>
+                <div className="p-6 bg-gray-50/50 dark:bg-gray-800/10 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-xs shrink-0">
+                    <span className="text-gray-400 font-bold uppercase tracking-tighter">Total Ordres: {orders.reduce((acc, curr) => acc + curr.montant, 0).toLocaleString()} $</span>
+                    <button
+                        onClick={exportToCSV}
+                        className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-gray-200/20 active:scale-95"
+                    >
+                        Export CSV
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
-export const DecaissementCarousel = () => {
+const DecaissementCard = ({ item }: { item: any }) => {
+    const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+
+    return (
+        <>
+            <div className="min-w-[310px] bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-[2rem] p-5 transition-all duration-300 group hover:shadow-2xl hover:shadow-indigo-500/10">
+                <div className="flex justify-between items-start mb-2">
+                    <div className="flex gap-1">
+                        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+                            <DollarLineIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-black text-gray-900 dark:text-gray-100 leading-tight">{item.periode}</h4>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{item.dateCreation}</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{item.montant.toLocaleString()} $</p>
+                        <div className="flex items-center justify-end gap-1 mt-1">
+                            <div className="w-12 h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]"
+                                    style={{ width: `${item.pourcentage}%` }}
+                                ></div>
+                            </div>
+                            <span className="text-[10px] font-black text-blue-600">{item.pourcentage}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="h-px bg-gray-50 dark:bg-gray-800/50 mb-2"></div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        onClick={() => setIsOrdersOpen(true)}
+                        className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 active:scale-95"
+                    >
+                        <ListIcon className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black uppercase">Ordres</span>
+                    </button>
+                    <button
+                        onClick={() => console.log("Justificatifs :", item?.pieces)}
+                        className="flex items-center justify-center gap-2 py-2.5 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all active:scale-95"
+                    >
+                        <DownloadIcon className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black uppercase">Justifs</span>
+                    </button>
+                </div>
+            </div>
+
+            {isOrdersOpen && (
+                <OrdersModal
+                    orders={item.ordres}
+                    title={item.periode}
+                    onClose={() => setIsOrdersOpen(false)}
+                />
+            )}
+        </>
+    );
+};
+
+export const DecaissementCarousel = ({ data }: { data: any }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: "left" | "right") => {
@@ -99,12 +182,37 @@ export const DecaissementCarousel = () => {
         }
     };
 
+    const plansHebdo = data?.planHebdo || [];
+    let totalOK = 0;
+
+    plansHebdo.forEach((plan: any) => {
+        totalOK += plan.ordres?.reduce((acc: number, ordre: any) => acc + (ordre.status === 'OK' ? ordre.montant : 0), 0) || 0;
+    });
+
+    const decaissements = plansHebdo.map((plan: any) => {
+        const dateStr = plan?.createdAt;
+        const amountOK = plan.ordres?.reduce((acc: number, ordre: any) => acc + (ordre.status === 'OK' ? ordre.montant : 0), 0) || 0;
+        const pourcentage = plan.montant ? Math.round((amountOK / plan.montant) * 100) : 0;
+        return {
+            id: plan._id,
+            periode: plan.designation,
+            dateCreation: dateStr ? new Date(dateStr).toLocaleDateString() : "Date inconnue",
+            montant: plan.montant,
+            pourcentage: pourcentage,
+            type: "Fonctionnement",
+            ordres: plan.ordres || [],
+            pieces: plan.pieces || []
+        }
+    });
+
     return (
         <div className="rounded-[2.5rem] space-y-3 shadow-2xl shadow-gray-200/10 dark:shadow-none">
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-xl font-black text-gray-900 dark:text-white">Décaissellements Récents</h3>
-                    <p className="text-xs text-gray-500 font-medium italic">Suivi des flux financiers de l'établissement</p>
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{(data?.designation || "Budget") + " " + (data?.annee?.debut || "") + " - " + (data?.annee?.fin || "")}</h3>
+                    <p className="text-xs text-gray-500 font-medium italic">
+                        Total Budget : {(data?.montant || 0).toLocaleString()}$ | Décaissé : {totalOK.toLocaleString()}$ | Reste : {Math.max(0, (data?.montant || 0) - totalOK).toLocaleString()}$
+                    </p>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -127,7 +235,7 @@ export const DecaissementCarousel = () => {
                 className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-                {FAKE_DECAISSEMENTS.map((item) => (
+                {decaissements.map((item: any) => (
                     <div key={item.id} className="snap-start">
                         <DecaissementCard item={item} />
                     </div>

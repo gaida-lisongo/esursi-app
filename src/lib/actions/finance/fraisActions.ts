@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/connect";
-import { Paiement, Parcours, Tranche } from "@/lib/models";
+import { Budget, Paiement, Parcours, PlanHebdo, Tranche } from "@/lib/models";
 import { Frais, Quota } from "@/lib/models/Frais";
 import { revalidatePath } from "next/cache";
 
@@ -131,7 +131,7 @@ export async function getTransactionsByFrais(fraisId: string): Promise<{
         await dbConnect();
 
         // Trouver d'abord les tranches associées au frais
-        const trancheIds: any[] = await Tranche.find({ frais: fraisId }).distinct("_id");
+        const trancheIds: any[] = await Tranche.find({ frais: fraisId } as any).distinct("_id");
 
         // Filtrer les paiements qui appartiennent à ces tranches
         const transactions = await Paiement.find({ tranche: { $in: trancheIds } })
@@ -177,6 +177,41 @@ export async function getParcoursByAnneeEtab(anneeId: string, etablissementId: s
             data: JSON.parse(JSON.stringify(items)).map((p: any) => ({
                 ...p,
                 id: p._id.toString()
+            }))
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+// --- FETCH DETAILS BUDGET ---
+export async function getBudgetsByAnneeEtab(anneeId: string, etablissementId: string): Promise<{
+    success: boolean;
+    message?: string;
+    data?: any;
+}> {
+    try {
+
+        await dbConnect();
+
+        const budget = await Budget.findOne({ annee: anneeId, etablissement: etablissementId } as any)
+            .populate("etablissement")
+            .populate("annee")
+            .lean();
+
+        if (!budget) return { success: false, message: "Budget non trouvé" };
+
+        const items = await PlanHebdo.find({ budget: budget._id } as any)
+            .populate("budget")
+            .populate("lignes")
+            .populate("ordres")
+            .populate("ordres.ligne")
+            .lean();
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify({
+                ...budget,
+                planHebdo: items
             }))
         };
     } catch (error: any) {
