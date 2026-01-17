@@ -9,6 +9,7 @@ import { useAdminStore } from "@/store/useAdminStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { loginAdmin, recoverPassword } from "@/lib/actions/auth/actions";
+import Spinner from "@/components/ui/Spinner";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +18,7 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [localError, setLocalError] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { login, isLoading, error, clearError } = useAdminStore();
   const router = useRouter();
@@ -33,7 +35,10 @@ export default function SignInForm() {
       if (!password) return;
       const result = await login(identifier, password);
       if (result.success) {
-        router.push("/");
+        setIsRedirecting(true);
+        setTimeout(() => {
+          router.push("/");
+        }, 800);
       }
     } else {
       // Logic for recovery
@@ -52,6 +57,18 @@ export default function SignInForm() {
     setLocalError("");
     setSuccessMessage("");
   };
+
+  if (isRedirecting) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto space-y-6">
+        <Spinner size="lg" />
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Connexion réussie</h2>
+          <p className="text-gray-500 dark:text-gray-400">Redirection vers votre tableau de bord...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -88,8 +105,14 @@ export default function SignInForm() {
               </div>
             )}
             {successMessage && (
-              <div className="p-3 mb-4 text-sm text-green-600 bg-green-100 rounded-lg dark:bg-green-500/10 dark:text-green-400 border border-green-200 dark:border-green-500/20">
-                {successMessage}
+              <div className="p-4 mb-4 text-sm text-green-700 bg-green-50 rounded-xl dark:bg-green-500/10 dark:text-green-400 border border-green-200 dark:border-green-500/20 flex flex-col items-center text-center space-y-2">
+                <span className="font-bold text-lg">Succès !</span>
+                <span>{successMessage}</span>
+                {mode === "recover" && (
+                  <button onClick={toggleMode} className="mt-2 text-brand-600 font-bold underline">
+                    Retourner à la connexion
+                  </button>
+                )}
               </div>
             )}
             <form onSubmit={handleSubmit}>
@@ -102,7 +125,11 @@ export default function SignInForm() {
                     placeholder="info@gmail.com ou 1.234.567 A"
                     type="text"
                     value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
+                    onChange={(e) => {
+                      setIdentifier(e.target.value);
+                      if (localError) setLocalError("");
+                      if (successMessage) setSuccessMessage("");
+                    }}
                   />
                 </div>
 
@@ -144,13 +171,18 @@ export default function SignInForm() {
 
                 <div>
                   <Button
-                    className="w-full"
-                    size="sm"
+                    className="w-full h-12 relative overflow-hidden"
+                    size="md"
                     disabled={isLoading}
                   >
-                    {isLoading
-                      ? "Traitement en cours..."
-                      : (mode === "signin" ? "Se connecter" : "Réinitialiser mon mot de passe")}
+                    {isLoading ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <Spinner size="sm" />
+                        <span>Envoi en cours...</span>
+                      </div>
+                    ) : (
+                      <span>{mode === "signin" ? "Se connecter" : "Réinitialiser mon mot de passe"}</span>
+                    )}
                   </Button>
                 </div>
               </div>
