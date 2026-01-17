@@ -5,203 +5,283 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { MoreDotIcon } from "@/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { Parcours } from "../etablissement/Dashboard";
+import Button from "../ui/button/Button";
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function TargetChart() {
-  const series = [75.55];
+interface Program {
+  _id: string;
+  designation: string;
+  code: string;
+  credits: number;
+}
+
+export default function TargetChart({
+  data
+}: {
+  data: Parcours[];
+}) {
+
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(data[0]?.programme as Program);
+  const [selectedParcours, setSelectedParcours] = useState<{
+    series: number,
+    etudiants: any[],
+    totalOK: number,
+    totalPENDING: number,
+    totalNO: number,
+    ca: number
+  }>({
+    series: 0.0,
+    etudiants: [],
+    totalOK: 0,
+    totalPENDING: 0,
+    totalNO: 0,
+    ca: 0.0
+  });
+
+  useEffect(() => {
+    const listPrograms: Program[] = [];
+
+    for (const parcours of data) {
+      const p = parcours.programme as Program;
+      if (!p) continue;
+      const isProgramExist = listPrograms.find((program) => program._id === p._id);
+      if (!isProgramExist) {
+        listPrograms.push({
+          _id: p._id,
+          designation: p.designation,
+          code: p.code,
+          credits: p.credits,
+        });
+      }
+    }
+    setPrograms(listPrograms);
+    if (!selectedProgram && listPrograms.length > 0) {
+      setSelectedProgram(listPrograms[0]);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!selectedProgram) return;
+    const filterData = data.filter((parcours) => parcours.programme._id === selectedProgram?._id);
+    if (!filterData.length) return;
+
+    const pOK = filterData.filter((parcours) => parcours.status === "OK");
+    const etudiants = pOK.map((parcours) => parcours.etudiant);
+    const totalOK = filterData.filter((p) => p.status === "OK").length;
+    const totalPENDING = filterData.filter((p) => p.status === "PENDING").length;
+    const totalNO = filterData.filter((p) => p.status === "NO").length;
+    const ca = filterData.reduce((total, p) => total + (p?.status === "OK" ? p?.tranche?.montant : 0), 0);
+    const series = Math.round((totalOK / filterData.length) * 100);
+
+    setSelectedParcours({
+      series: isNaN(series) ? 0 : series,
+      etudiants,
+      totalOK,
+      totalPENDING,
+      totalNO,
+      ca
+    });
+  }, [selectedProgram, data]);
+
+  const exportToCSV = () => {
+    if (selectedParcours.etudiants.length === 0) return;
+
+    const headers = ["Matricule", "Nom", "Post-Nom", "Prenom", "Sexe", "Email", "Telephone", "Grade", "Adresse"];
+    const rows = selectedParcours.etudiants.map(e => [
+      e.matricule,
+      e.nom,
+      e.postNom,
+      e.prenom,
+      e.sexe,
+      e.email,
+      e.telephone,
+      e.grade,
+      e.adresse
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Etudiants_${selectedProgram?.code || 'Export'}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const series = [selectedParcours.series ?? 0.0];
   const options: ApexOptions = {
-    colors: ["#465FFF"],
+    colors: ["#3b82f6"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "radialBar",
-      height: 330,
       sparkline: {
         enabled: true,
       },
+      animations: {
+        enabled: true,
+        speed: 800,
+        animateGradually: {
+          enabled: true,
+          delay: 150
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 350
+        }
+      }
     },
     plotOptions: {
       radialBar: {
-        startAngle: -85,
-        endAngle: 85,
+        startAngle: -90,
+        endAngle: 90,
         hollow: {
-          size: "80%",
+          size: "75%",
         },
         track: {
-          background: "#E4E7EC",
+          background: "#f1f5f9",
           strokeWidth: "100%",
-          margin: 5, // margin is in pixels
+          margin: 5,
         },
         dataLabels: {
           name: {
             show: false,
           },
           value: {
-            fontSize: "36px",
-            fontWeight: "600",
-            offsetY: -40,
-            color: "#1D2939",
-            formatter: function (val) {
-              return val + "%";
-            },
+            fontSize: "42px",
+            fontWeight: "900",
+            offsetY: -30,
+            color: "#1e293b",
+            formatter: (val) => val + "%",
           },
         },
       },
     },
     fill: {
-      type: "solid",
-      colors: ["#465FFF"],
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "horizontal",
+        shadeIntensity: 0.5,
+        gradientToColors: ["#60a5fa"],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+      },
     },
     stroke: {
       lineCap: "round",
     },
-    labels: ["Progress"],
+    labels: ["Succès"],
   };
 
   const [isOpen, setIsOpen] = useState(false);
 
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
-
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
-      <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-11 dark:bg-gray-900 sm:px-6 sm:pt-6">
-        <div className="flex justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Monthly Target
+    <div className="group rounded-[2.5rem] border border-gray-100 dark:border-gray-800 bg-white p-6 shadow-2xl shadow-gray-200/20 transition-all duration-500 hover:shadow-blue-500/5 dark:shadow-none dark:bg-white/[0.03]">
+      <div className="relative">
+        <div className="flex justify-between items-start mb-2">
+          <div className="animate-in fade-in slide-in-from-left duration-700">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+              {selectedProgram?.code || "Analyse"}
             </h3>
-            <p className="mt-1 font-normal text-gray-500 text-theme-sm dark:text-gray-400">
-              Target you’ve set for each month
+            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em] mt-1 opacity-80">
+              {selectedProgram?.designation || "Vue d'ensemble"}
             </p>
           </div>
-          <div className="relative inline-block">
-            <button onClick={toggleDropdown} className="dropdown-toggle">
-              <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+
+          <div className="relative">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 hover:text-blue-600 transition-all duration-300"
+            >
+              <MoreDotIcon className="w-5 h-5" />
             </button>
             <Dropdown
               isOpen={isOpen}
-              onClose={closeDropdown}
-              className="w-40 p-2"
+              onClose={() => setIsOpen(false)}
+              className="w-56 p-2 mt-2"
             >
-              <DropdownItem
-                tag="a"
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                View More
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                Delete
-              </DropdownItem>
+              {programs.map((program) => (
+                <DropdownItem
+                  tag="button"
+                  key={program._id}
+                  onItemClick={() => {
+                    setSelectedProgram(program);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full px-4 py-3 rounded-xl text-xs font-bold transition-all ${selectedProgram?._id === program._id ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                >
+                  {program.designation}
+                </DropdownItem>
+              ))}
             </Dropdown>
           </div>
         </div>
-        <div className="relative ">
-          <div className="max-h-[330px]">
+
+        <div className="relative flex flex-col items-center">
+          <div className="w-full h-[280px] -mt-4 animate-in zoom-in duration-1000">
             <ReactApexChart
               options={options}
               series={series}
               type="radialBar"
-              height={330}
+              height={350}
             />
           </div>
 
-          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
-            +10%
-          </span>
+          <div className="absolute top-[60%] flex flex-col items-center pointer-events-none transition-transform duration-500 group-hover:scale-110">
+            <div className="px-5 py-2 bg-blue-600/90 backdrop-blur-md text-white rounded-2xl text-[11px] font-black shadow-2xl shadow-blue-500/40 uppercase tracking-widest flex items-center gap-2.5 border border-white/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              <span className="drop-shadow-sm">CA: {selectedParcours.ca.toLocaleString()}$</span>
+            </div>
+          </div>
         </div>
-        <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
-          good work!
-        </p>
+
+        <button
+          onClick={exportToCSV}
+          className="w-full mt-6 py-4.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white dark:hover:text-white hover:shadow-2xl hover:shadow-blue-500/30 active:scale-[0.97] flex items-center justify-center gap-3 group/btn"
+        >
+          Voir les étudiants
+          <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14m-7-7 7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
-      <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Target
-          </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.26816 13.6632C7.4056 13.8192 7.60686 13.9176 7.8311 13.9176C7.83148 13.9176 7.83187 13.9176 7.83226 13.9176C8.02445 13.9178 8.21671 13.8447 8.36339 13.6981L12.3635 9.70076C12.6565 9.40797 12.6567 8.9331 12.3639 8.6401C12.0711 8.34711 11.5962 8.34694 11.3032 8.63973L8.5811 11.36L8.5811 2.5C8.5811 2.08579 8.24531 1.75 7.8311 1.75C7.41688 1.75 7.0811 2.08579 7.0811 2.5L7.0811 11.3556L4.36354 8.63975C4.07055 8.34695 3.59568 8.3471 3.30288 8.64009C3.01008 8.93307 3.01023 9.40794 3.30321 9.70075L7.26816 13.6632Z"
-                fill="#D92D20"
-              />
-            </svg>
-          </p>
+      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 grid grid-cols-3 gap-2 px-2">
+        <div className="flex flex-col items-center group/stat cursor-help">
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 group-hover/stat:text-red-500 transition-colors duration-300">Rejeté</span>
+          <span className="text-xl font-black text-gray-900 dark:text-white group-hover/stat:scale-110 transition-transform duration-300 tracking-tight">{selectedParcours.totalNO}</span>
+          <div className="w-6 h-1 bg-red-100 dark:bg-red-900/30 rounded-full mt-2 group-hover/stat:w-8 group-hover/stat:bg-red-500 transition-all duration-300"></div>
         </div>
 
-        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
-
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Revenue
-          </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.60141 2.33683C7.73885 2.18084 7.9401 2.08243 8.16435 2.08243C8.16475 2.08243 8.16516 2.08243 8.16556 2.08243C8.35773 2.08219 8.54998 2.15535 8.69664 2.30191L12.6968 6.29924C12.9898 6.59203 12.9899 7.0669 12.6971 7.3599C12.4044 7.6529 11.9295 7.65306 11.6365 7.36027L8.91435 4.64004L8.91435 13.5C8.91435 13.9142 8.57856 14.25 8.16435 14.25C7.75013 14.25 7.41435 13.9142 7.41435 13.5L7.41435 4.64442L4.69679 7.36025C4.4038 7.65305 3.92893 7.6529 3.63613 7.35992C3.34333 7.06693 3.34348 6.59206 3.63646 6.29926L7.60141 2.33683Z"
-                fill="#039855"
-              />
-            </svg>
-          </p>
+        <div className="flex flex-col items-center group/stat cursor-help">
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 group-hover/stat:text-amber-500 transition-colors duration-300">En cours</span>
+          <span className="text-xl font-black text-gray-900 dark:text-white group-hover/stat:scale-110 transition-transform duration-300 tracking-tight">{selectedParcours.totalPENDING}</span>
+          <div className="w-6 h-1 bg-amber-100 dark:bg-amber-900/30 rounded-full mt-2 group-hover/stat:w-8 group-hover/stat:bg-amber-500 transition-all duration-300"></div>
         </div>
 
-        <div className="w-px bg-gray-200 h-7 dark:bg-gray-800"></div>
-
-        <div>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
-            Today
-          </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-            $20K
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M7.60141 2.33683C7.73885 2.18084 7.9401 2.08243 8.16435 2.08243C8.16475 2.08243 8.16516 2.08243 8.16556 2.08243C8.35773 2.08219 8.54998 2.15535 8.69664 2.30191L12.6968 6.29924C12.9898 6.59203 12.9899 7.0669 12.6971 7.3599C12.4044 7.6529 11.9295 7.65306 11.6365 7.36027L8.91435 4.64004L8.91435 13.5C8.91435 13.9142 8.57856 14.25 8.16435 14.25C7.75013 14.25 7.41435 13.9142 7.41435 13.5L7.41435 4.64442L4.69679 7.36025C4.4038 7.65305 3.92893 7.6529 3.63613 7.35992C3.34333 7.06693 3.34348 6.59206 3.63646 6.29926L7.60141 2.33683Z"
-                fill="#039855"
-              />
-            </svg>
-          </p>
+        <div className="flex flex-col items-center group/stat cursor-help">
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 group-hover/stat:text-green-500 transition-colors duration-300">Inscrits</span>
+          <span className="text-xl font-black text-gray-900 dark:text-white group-hover/stat:scale-110 transition-transform duration-300 tracking-tight">{selectedParcours.totalOK}</span>
+          <div className="w-6 h-1 bg-green-100 dark:bg-green-900/30 rounded-full mt-2 group-hover/stat:w-8 group-hover/stat:bg-green-500 transition-all duration-300"></div>
         </div>
       </div>
     </div>

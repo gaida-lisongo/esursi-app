@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/connect";
-import { Paiement, Tranche } from "@/lib/models";
+import { Paiement, Parcours, Tranche } from "@/lib/models";
 import { Frais, Quota } from "@/lib/models/Frais";
 import { revalidatePath } from "next/cache";
 
@@ -149,6 +149,34 @@ export async function getTransactionsByFrais(fraisId: string): Promise<{
             data: JSON.parse(JSON.stringify(transactions)).map((t: any) => ({
                 ...t,
                 id: t._id.toString()
+            }))
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+// --- FETCH DETAILS PARCOURS ---
+export async function getParcoursByAnneeEtab(anneeId: string, etablissementId: string): Promise<{
+    success: boolean;
+    message?: string;
+    data?: any[];
+}> {
+    try {
+
+        await dbConnect();
+        const items = await Parcours.find({ annee: anneeId, etablissement: etablissementId } as any)
+            .populate("etudiant")
+            .populate("annee")
+            .populate("programme")
+            .populate("tranche")
+            .lean();
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(items)).map((p: any) => ({
+                ...p,
+                id: p._id.toString()
             }))
         };
     } catch (error: any) {

@@ -27,6 +27,16 @@ export interface Transaction {
     }[];
 }
 
+export interface Parcours {
+    etudiant: any;
+    programme: any;
+    annee: string;
+    decision: 'Admis' | 'Non Admis' | 'En attente';
+    status: 'OK' | 'PENDING' | 'NO';
+    etablissement: any;
+    tranche: any;
+}
+
 interface FinaceProps {
     metriques: {
         icon: string;
@@ -56,15 +66,7 @@ interface FinaceProps {
             status: 'OK' | 'PENDING' | 'NO'
         }[];
     }[];
-    parcours: {
-        etudiant: any;
-        programme: string;
-        annee: string;
-        decision: 'Admis' | 'Non Admis' | 'En attente';
-        status: 'OK' | 'PENDING' | 'NO';
-        etablissement: any;
-        tranche: any;
-    }[];
+    parcours: Parcours[];
     transactions: Transaction[];
 }
 
@@ -88,12 +90,12 @@ export default function FinanceDashboard({
                     <DecaissementCarousel />
                 </div>
                 <div className="lg:w-1/3">
-                    <TargetChart />
+                    {parcours.length > 0 && <TargetChart data={parcours} />}
                 </div>
             </div>
 
             <div className="col-span-12 ">
-                <Transactions data={transactions} />
+                {transactions.length > 0 && <Transactions data={transactions} />}
             </div>
         </div>
     );

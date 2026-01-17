@@ -8,7 +8,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { ArrowUpIcon, TableIcon, PieChartIcon } from "@/icons";
 import FinanceDashboard from "@/components/etablissement/Dashboard";
 import { getAnnees } from "@/lib/actions/education/anneeActions";
-import { getFraisByAnnee, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
+import { getFraisByAnnee, getParcoursByAnneeEtab, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
 
 export default function ProvinceReportingPage() {
     const { provinceId } = useParams();
@@ -18,9 +18,9 @@ export default function ProvinceReportingPage() {
     const [selectedEtab, setSelectedEtab] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [annees, setAnnees] = useState<any[]>([]);
+    const [parcours, setParcours] = useState<any[]>([]);
 
-    //Fetch années from Server Action
-
+    //Fetch data from Server Action
     const loadAnnees = async () => {
         const resAnnees = await getAnnees();
 
@@ -28,6 +28,10 @@ export default function ProvinceReportingPage() {
             const data = resAnnees.data;
 
             const years = data.map(async (annee: any) => {
+                if (annee.actif) {
+                    await loadParcours(annee?._id);
+                }
+
                 let transaction: { _id: any; annee: string; data: any[] } = {
                     _id: annee?._id,
                     annee: annee?.debut + ' - ' + annee?.fin,
@@ -63,6 +67,17 @@ export default function ProvinceReportingPage() {
         };
     }
 
+    const loadParcours = async (anneeId: string) => {
+        const resParcours = await getParcoursByAnneeEtab(anneeId, selectedEtab?._id as string);
+
+        if (resParcours.success) {
+            const data = resParcours.data;
+            if (data) {
+                setParcours(data);
+            }
+        }
+    }
+
     useEffect(() => {
         const load = async () => {
             setLoading(true);
@@ -76,7 +91,7 @@ export default function ProvinceReportingPage() {
         };
         load();
         loadAnnees();
-    }, [provinceId]);
+    }, [provinceId, selectedEtab]);
 
     if (selectedEtab) {
         return (
@@ -100,7 +115,7 @@ export default function ProvinceReportingPage() {
                     metriques={[]}
                     budget={[]}
                     plansHebdo={[]}
-                    parcours={[]}
+                    parcours={parcours}
                     transactions={annees}
                 />
             </div>
