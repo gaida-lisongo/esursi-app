@@ -1,23 +1,26 @@
 "use client";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
-import { MoreDotIcon } from "@/icons";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function MonthlySalesChart() {
+export default function MonthlySalesChart({
+  data
+}: { data: any[] }) {
+
+  // Transform data for chart
+  const categories = data.map(province => province.designation || province.code);
+  const seriesData = data.map(province => province.etabs?.length || 0);
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
-      fontFamily: "Outfit, sans-serif",
+      fontFamily: "Satoshi, sans-serif",
       type: "bar",
-      height: 180,
+      height: 350,
       toolbar: {
         show: false,
       },
@@ -25,9 +28,8 @@ export default function MonthlySalesChart() {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "39%",
-        borderRadius: 5,
-        borderRadiusApplication: "end",
+        columnWidth: "55%",
+        borderRadius: 8,
       },
     },
     dataLabels: {
@@ -39,39 +41,44 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: categories,
       axisBorder: {
         show: false,
       },
       axisTicks: {
         show: false,
       },
+      labels: {
+        rotate: -45,
+        style: {
+          fontSize: "12px",
+        },
+      },
     },
     legend: {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Satoshi",
+      fontWeight: 500,
+      fontSize: "14px",
+      // markers: {
+      //   // radius: 99,
+      //   width: 12,
+      //   height: 12,
+      // },
     },
     yaxis: {
       title: {
-        text: undefined,
+        text: "Nombre d'établissements",
+        style: {
+          fontSize: "14px",
+          fontWeight: 600,
+        },
       },
     },
     grid: {
+      strokeDashArray: 7,
       yaxis: {
         lines: {
           show: true,
@@ -81,71 +88,42 @@ export default function MonthlySalesChart() {
     fill: {
       opacity: 1,
     },
-
     tooltip: {
       x: {
-        show: false,
+        show: true,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: function (val) {
+          return val + " établissement" + (val > 1 ? "s" : "");
+        },
       },
     },
   };
+
   const series = [
     {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      name: "Établissements",
+      data: seriesData,
     },
   ];
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
-        </h3>
-
-        <div className="relative inline-block">
-          <button onClick={toggleDropdown} className="dropdown-toggle">
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
-          </button>
-          <Dropdown
-            isOpen={isOpen}
-            onClose={closeDropdown}
-            className="w-40 p-2"
-          >
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
-            </DropdownItem>
-          </Dropdown>
+    <div className="col-span-12 rounded-3xl border border-gray-200 bg-white px-7.5 pb-6 pt-7.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 xl:col-span-7">
+      <div className="mb-4 justify-between gap-4 sm:flex">
+        <div>
+          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+            Établissements par Province
+          </h4>
         </div>
       </div>
 
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
+      <div>
+        <div id="chartTwo" className="-ml-3.5">
           <ReactApexChart
             options={options}
             series={series}
             type="bar"
-            height={180}
+            height={370}
           />
         </div>
       </div>
