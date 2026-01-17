@@ -281,6 +281,15 @@
 
 
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@utility animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
 @layer utilities {
   /* For Remove Date Icon */
   input[type="date"]::-webkit-inner-spin-button,
