@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getEtablissementsByProvince, getProvinceDetails } from "@/lib/actions/finance/reportingActions";
 import CardCrudManager from "@/components/common/CardCrudManager";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { ArrowUpIcon, TableIcon, PieChartIcon } from "@/icons";
+import { ArrowUpIcon, TableIcon, PieChartIcon, GroupIcon, DownloadIcon, CloseLineIcon, LockIcon } from "@/icons";
 import FinanceDashboard from "@/components/etablissement/Dashboard";
 import { getAnnees } from "@/lib/actions/education/anneeActions";
 import { getBudgetsByAnneeEtab, getFraisByAnnee, getParcoursByAnneeEtab, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
@@ -20,6 +20,7 @@ export default function ProvinceReportingPage() {
     const [annees, setAnnees] = useState<any[]>([]);
     const [parcours, setParcours] = useState<any[]>([]);
     const [budget, setBudget] = useState<any | null>(null);
+    const [metriques, setMetriques] = useState<any[]>([]);
 
     //Fetch data from Server Action
     const loadAnnees = async () => {
@@ -34,9 +35,10 @@ export default function ProvinceReportingPage() {
                     await loadBudgets(annee?._id);
                 }
 
-                let transaction: { _id: any; annee: string; data: any[] } = {
+                let transaction: { _id: any; annee: string; actif: boolean; data: any[] } = {
                     _id: annee?._id,
                     annee: annee?.debut + ' - ' + annee?.fin,
+                    actif: annee?.actif,
                     data: []
                 };
 
@@ -106,7 +108,51 @@ export default function ProvinceReportingPage() {
         loadAnnees();
     }, [provinceId, selectedEtab]);
 
-    console.log("Budget : ", budget)
+    useEffect(() => {
+        const currentAnnee = annees.find((annee: any) => annee.actif);
+        console.log("Current année : ", currentAnnee);
+        if (currentAnnee) {
+            const paimemntsOK = currentAnnee?.data?.filter((t: any) => t.status === 'OK');
+            const paimemntsPENDING = currentAnnee?.data?.filter((t: any) => t.status === 'PENDING');
+            const paimemntsNO = currentAnnee?.data?.filter((t: any) => t.status === 'NO');
+
+            const stats: {
+                icon: any;
+                title: string;
+                value: number;
+                proportion: number;
+                annee: string;
+                status: 'up' | 'down';
+            }[] = [
+                    {
+                        icon: <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                        title: 'Paiements collectés',
+                        value: paimemntsOK?.reduce((total: number, item: any) => total + item.montant, 0),
+                        proportion: paimemntsOK?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
+                        annee: currentAnnee?.annee,
+                        status: 'up'
+                    },
+                    {
+                        icon: <DownloadIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                        title: 'Paiements encours',
+                        value: paimemntsPENDING?.reduce((total: number, item: any) => total + item.montant, 0),
+                        proportion: paimemntsPENDING?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
+                        annee: currentAnnee?.annee,
+                        status: 'down'
+                    },
+                    {
+                        icon: <LockIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                        title: 'Paiements non collectés',
+                        value: paimemntsNO?.reduce((total: number, item: any) => total + item.montant, 0),
+                        proportion: paimemntsNO?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
+                        annee: currentAnnee?.annee,
+                        status: 'down'
+                    }
+                ]
+
+            setMetriques(stats);
+        }
+    }, [annees]);
 
     if (selectedEtab) {
         return (
@@ -127,7 +173,7 @@ export default function ProvinceReportingPage() {
                 </div>
 
                 <FinanceDashboard
-                    metriques={[]}
+                    metriques={metriques}
                     budget={budget}
                     parcours={parcours}
                     transactions={annees}

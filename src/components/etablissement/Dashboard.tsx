@@ -37,15 +37,17 @@ export interface Parcours {
     tranche: any;
 }
 
+export interface Metrique {
+    icon: any;
+    title: string;
+    value: number;
+    proportion: number;
+    annee: string;
+    status: 'up' | 'down';
+}
+
 interface FinaceProps {
-    metriques: {
-        icon: string;
-        title: string;
-        value: number;
-        proportion: number;
-        annee: string;
-        status: 'up' | 'down';
-    }[];
+    metriques: Metrique[];
     budget?: {
         annee: string;
         montant: number;
@@ -79,7 +81,7 @@ export default function FinanceDashboard({
     return (
         <div className="grid grid-cols-12 gap-4 md:gap-6">
             <div className="col-span-12 space-y-3">
-                <Metrics data={[1, 2, 3]} />
+                {metriques.length > 0 && <Metrics data={metriques} />}
 
             </div>
 
