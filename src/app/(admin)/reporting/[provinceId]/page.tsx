@@ -17,81 +17,94 @@ export default function ProvinceReportingPage() {
     const [province, setProvince] = useState<any>(null);
     const [selectedEtab, setSelectedEtab] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [dashboardLoading, setDashboardLoading] = useState(false);
     const [annees, setAnnees] = useState<any[]>([]);
     const [parcours, setParcours] = useState<any[]>([]);
     const [budget, setBudget] = useState<any | null>(null);
     const [metriques, setMetriques] = useState<any[]>([]);
 
     //Fetch data from Server Action
-    const loadAnnees = async () => {
-        const resAnnees = await getAnnees();
+    const loadDashboardData = async (etab: any) => {
+        if (!etab) return;
+        setDashboardLoading(true);
+        try {
+            const resAnnees = await getAnnees();
+            if (resAnnees.success) {
+                const data = resAnnees.data;
+                const years = await Promise.all(data.map(async (annee: any) => {
+                    let transaction: { _id: any; annee: string; actif: boolean; data: any[] } = {
+                        _id: annee?._id,
+                        annee: annee?.debut + " - " + annee?.fin,
+                        actif: annee?.actif,
+                        data: [],
+                    };
 
-        if (resAnnees.success) {
-            const data = resAnnees.data;
-
-            const years = data.map(async (annee: any) => {
-                if (annee.actif) {
-                    await loadParcours(annee?._id);
-                    await loadBudgets(annee?._id);
-                }
-
-                let transaction: { _id: any; annee: string; actif: boolean; data: any[] } = {
-                    _id: annee?._id,
-                    annee: annee?.debut + ' - ' + annee?.fin,
-                    actif: annee?.actif,
-                    data: []
-                };
-
-                let frais = [];
-                const reqAnness = await getFraisByAnnee(annee?._id)
-                if (reqAnness.success) {
-                    const data = reqAnness.data;
-                    frais = data;
-                }
-
-                if (frais?.length > 0) {
-                    for (const f of frais) {
-                        const reqTransactions = await getTransactionsByFrais(f?._id);
-
-                        if (reqTransactions.success) {
-                            const data = reqTransactions.data;
-
-                            if (data) {
-                                transaction.data.push(...data);
-                            }
-                        }
+                    if (annee.actif) {
+                        const [resP, resB] = await Promise.all([
+                            getParcoursByAnneeEtab(annee?._id, etab._id),
+                            getBudgetsByAnneeEtab(annee?._id, etab._id),
+                        ]);
+                        if (resP.success) setParcours(resP.data || []);
+                        if (resB.success) setBudget(resB.data);
                     }
-                }
-                return transaction;
-            });
 
-            Promise.all(years).then((years) => {
+                    const reqFrais = await getFraisByAnnee(annee?._id);
+                    if (reqFrais.success && reqFrais.data?.length > 0) {
+                        const allTransactions = await Promise.all(
+                            reqFrais.data.map((f: any) => getTransactionsByFrais(f._id))
+                        );
+                        allTransactions.forEach((res) => {
+                            if (res.success && res.data) {
+                                transaction.data.push(...res.data);
+                            }
+                        });
+                    }
+                    return transaction;
+                }));
                 setAnnees(years);
-            });
-        };
-    }
 
-    const loadParcours = async (anneeId: string) => {
-        const resParcours = await getParcoursByAnneeEtab(anneeId, selectedEtab?._id as string);
+                // Calculate metrics immediately
+                const currentAnnee = years.find((annee: any) => annee.actif);
+                if (currentAnnee) {
+                    const paimemntsOK = currentAnnee?.data?.filter((t: any) => t.status === "OK") || [];
+                    const paimemntsPENDING = currentAnnee?.data?.filter((t: any) => t.status === "PENDING") || [];
+                    const paimemntsNO = currentAnnee?.data?.filter((t: any) => t.status === "NO") || [];
 
-        if (resParcours.success) {
-            const data = resParcours.data;
-            if (data) {
-                setParcours(data);
+                    const stats: any[] = [
+                        {
+                            icon: <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                            title: "Paiements collectés",
+                            value: paimemntsOK.reduce((total: number, item: any) => total + item.montant, 0),
+                            proportion: paimemntsOK.length / (paimemntsOK.length + paimemntsPENDING.length + paimemntsNO.length) || 0,
+                            annee: currentAnnee.annee,
+                            status: "up",
+                        },
+                        {
+                            icon: <DownloadIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                            title: "Paiements encours",
+                            value: paimemntsPENDING.reduce((total: number, item: any) => total + item.montant, 0),
+                            proportion: paimemntsPENDING.length / (paimemntsOK.length + paimemntsPENDING.length + paimemntsNO.length) || 0,
+                            annee: currentAnnee.annee,
+                            status: "down",
+                        },
+                        {
+                            icon: <LockIcon className="text-gray-800 size-6 dark:text-white/90" />,
+                            title: "Paiements non collectés",
+                            value: paimemntsNO.reduce((total: number, item: any) => total + item.montant, 0),
+                            proportion: paimemntsNO.length / (paimemntsOK.length + paimemntsPENDING.length + paimemntsNO.length) || 0,
+                            annee: currentAnnee.annee,
+                            status: "down",
+                        },
+                    ];
+                    setMetriques(stats);
+                }
             }
+        } catch (error) {
+            console.error("Error loading dashboard data:", error);
+        } finally {
+            setDashboardLoading(false);
         }
-    }
-
-    const loadBudgets = async (anneeId: string) => {
-        const resBudgets = await getBudgetsByAnneeEtab(anneeId, selectedEtab?._id as string);
-
-        if (resBudgets.success) {
-            const data = resBudgets.data;
-            if (data) {
-                setBudget(data);
-            }
-        }
-    }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -105,54 +118,13 @@ export default function ProvinceReportingPage() {
             setLoading(false);
         };
         load();
-        loadAnnees();
-    }, [provinceId, selectedEtab]);
+    }, [provinceId]);
 
     useEffect(() => {
-        const currentAnnee = annees.find((annee: any) => annee.actif);
-        console.log("Current année : ", currentAnnee);
-        if (currentAnnee) {
-            const paimemntsOK = currentAnnee?.data?.filter((t: any) => t.status === 'OK');
-            const paimemntsPENDING = currentAnnee?.data?.filter((t: any) => t.status === 'PENDING');
-            const paimemntsNO = currentAnnee?.data?.filter((t: any) => t.status === 'NO');
-
-            const stats: {
-                icon: any;
-                title: string;
-                value: number;
-                proportion: number;
-                annee: string;
-                status: 'up' | 'down';
-            }[] = [
-                    {
-                        icon: <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />,
-                        title: 'Paiements collectés',
-                        value: paimemntsOK?.reduce((total: number, item: any) => total + item.montant, 0),
-                        proportion: paimemntsOK?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
-                        annee: currentAnnee?.annee,
-                        status: 'up'
-                    },
-                    {
-                        icon: <DownloadIcon className="text-gray-800 size-6 dark:text-white/90" />,
-                        title: 'Paiements encours',
-                        value: paimemntsPENDING?.reduce((total: number, item: any) => total + item.montant, 0),
-                        proportion: paimemntsPENDING?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
-                        annee: currentAnnee?.annee,
-                        status: 'down'
-                    },
-                    {
-                        icon: <LockIcon className="text-gray-800 size-6 dark:text-white/90" />,
-                        title: 'Paiements non collectés',
-                        value: paimemntsNO?.reduce((total: number, item: any) => total + item.montant, 0),
-                        proportion: paimemntsNO?.length / (paimemntsOK?.length + paimemntsPENDING?.length + paimemntsNO?.length),
-                        annee: currentAnnee?.annee,
-                        status: 'down'
-                    }
-                ]
-
-            setMetriques(stats);
+        if (selectedEtab) {
+            loadDashboardData(selectedEtab);
         }
-    }, [annees]);
+    }, [selectedEtab]);
 
     if (selectedEtab) {
         return (
@@ -173,6 +145,7 @@ export default function ProvinceReportingPage() {
                 </div>
 
                 <FinanceDashboard
+                    isLoading={dashboardLoading}
                     metriques={metriques}
                     budget={budget}
                     parcours={parcours}

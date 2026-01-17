@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import React from "react";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
 import DemographicCard from "@/components/ecommerce/DemographicCard";
@@ -8,12 +7,6 @@ import TargetChart from "../ecommerce/TargetChart";
 
 import { DecaissementCarousel } from "../finance/DecaissementCarousel";
 import Transactions from "../ecommerce/Transactions";
-
-export const metadata: Metadata = {
-    title:
-        "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-    description: "This is Next.js Home for TailAdmin Dashboard Template",
-};
 
 export interface Transaction {
     _id: string;
@@ -47,6 +40,7 @@ export interface Metrique {
 }
 
 interface FinaceProps {
+    isLoading?: boolean;
     metriques: Metrique[];
     budget?: {
         annee: string;
@@ -73,16 +67,31 @@ interface FinaceProps {
 }
 
 export default function FinanceDashboard({
+    isLoading,
     metriques,
     budget,
     parcours,
     transactions
 }: FinaceProps) {
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
+                <div className="relative w-20 h-20">
+                    <div className="absolute inset-0 border-4 border-blue-100 rounded-full dark:border-blue-900/20"></div>
+                    <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <div className="text-center">
+                    <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Analyse des données...</h3>
+                    <p className="text-xs text-gray-500 font-medium italic">Préparation de votre dashboard financier</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="grid grid-cols-12 gap-4 md:gap-6">
+        <div className="grid grid-cols-12 gap-4 md:gap-6 animate-in fade-in duration-700">
             <div className="col-span-12 space-y-3">
                 {metriques.length > 0 && <Metrics data={metriques} />}
-
             </div>
 
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
