@@ -15,11 +15,11 @@ export interface IAgent extends Document {
     actif: boolean;
     photo?: string;
     matricule: string;
-    autorisation: [{
+    autorisation: {
         role: string;
         secureKey: string;
         status: 'OK' | 'PENDING' | 'NO'
-    }];
+    }[];
     action: boolean;
 }
 

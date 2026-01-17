@@ -5,6 +5,8 @@ import Agent from "@/lib/models/Agent";
 import Province from "@/lib/models/Province";
 import Grade from "@/lib/models/Grade";
 import { revalidatePath } from "next/cache";
+import Admin from "@/lib/models/Admin";
+import crypto from "crypto";
 
 // Utility to generate matricule
 function generateMatricule() {
@@ -107,5 +109,75 @@ export async function manageAuthorizations(agentId: string, autorisations: any[]
         return { success: true, message: "Autorisations mises à jour" };
     } catch (error: any) {
         return { success: false, message: error.message || "Erreur lors de la mise à jour des autorisations" };
+    }
+}
+
+export async function createAdmin(formData: { agentId: string, role: string, password: string }) {
+    try {
+        await dbConnect();
+        //Secure password sha256
+        const securePassword = await crypto.createHash("sha256").update(formData.password).digest("hex");
+        const admin = new Admin({
+            agentId: formData.agentId,
+            role: formData.role,
+            password: securePassword,
+        });
+        await admin.save();
+        revalidatePath("/(admin)/(personnel)/agents");
+        return { success: true, message: "Admin créé avec succès" };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors de la création de l'admin" };
+    }
+}
+
+
+
+export async function updateAdmin(adminId: string, formData: { agentId?: string, role?: string, password?: string }) {
+    try {
+        await dbConnect();
+        const admin = await Admin.findById(adminId);
+        if (!admin) return { success: false, message: "Admin non trouvé" };
+
+        if (formData.password) {
+            formData.password = crypto.createHash("sha256").update(formData.password).digest("hex");
+        }
+
+        Object.assign(admin, formData);
+        await admin.save();
+
+        revalidatePath("/(admin)/(personnel)/agents");
+        return { success: true, message: "Admin mis à jour avec succès" };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors de la mise à jour" };
+    }
+}
+
+export async function deleteAdmin(adminId: string) {
+    try {
+        await dbConnect();
+        //Hard delete
+        await Admin.findByIdAndDelete(adminId);
+        return { success: true, message: "Admin supprimé avec succès" };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors de la suppression" };
+    }
+}
+
+export async function getAdmins() {
+    try {
+        await dbConnect();
+        const admins = await Admin.find()
+            .populate("agentId")
+            .lean();
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(admins)).map((a: any) => ({
+                ...a,
+                id: a._id.toString(),
+            })),
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors du chargement des admins" };
     }
 }

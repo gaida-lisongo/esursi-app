@@ -2,6 +2,7 @@ import { Annee, Activite } from './Annee';
 import { Etablissement, Faculte } from './Etablissement';
 import Agent from './Agent';
 import { Frais, Quota } from './Frais';
+import Grade from './Grade';
 import Province from './Province';
 import { Etudiant, DossierEtudiant, Parcours } from './Etudiant';
 import { Ligne, Budget, PlanHebdo, Ordre } from './Depense';
@@ -16,6 +17,7 @@ export {
     Agent,
     Frais,
     Quota,
+    Grade,
     Province,
     Etudiant,
     DossierEtudiant,
