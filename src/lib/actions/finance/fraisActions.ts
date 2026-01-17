@@ -195,6 +195,7 @@ export async function getBudgetsByAnneeEtab(anneeId: string, etablissementId: st
 
         const budget = await Budget.findOne({ annee: anneeId, etablissement: etablissementId } as any)
             .populate("etablissement")
+            .populate("details.ligne")
             .populate("annee")
             .lean();
 

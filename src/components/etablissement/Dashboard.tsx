@@ -85,7 +85,7 @@ export default function FinanceDashboard({
 
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
                 <div className="lg:w-2/3 space-y-3">
-                    <RevenuChart />
+                    {budget && <RevenuChart data={budget} />}
                     {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={budget} />}
                 </div>
                 <div className="lg:w-1/3">
