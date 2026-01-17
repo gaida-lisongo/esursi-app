@@ -7,6 +7,7 @@ import RevenuChart from "../ecommerce/RevenuChart";
 import TargetChart from "../ecommerce/TargetChart";
 
 import { DecaissementCarousel } from "../finance/DecaissementCarousel";
+import Transactions from "../ecommerce/Transactions";
 
 export const metadata: Metadata = {
     title:
@@ -14,7 +15,66 @@ export const metadata: Metadata = {
     description: "This is Next.js Home for TailAdmin Dashboard Template",
 };
 
-export default function FinanceDashboard() {
+export interface Transaction {
+    _id: string;
+    annee: any;
+    data: {
+        etudiant: any;
+        status: 'OK' | 'PENDING' | 'NO';
+        orderNumber: string;
+        montant: number;
+        tranche: any;
+    }[];
+}
+
+interface FinaceProps {
+    metriques: {
+        icon: string;
+        title: string;
+        value: number;
+        proportion: number;
+        annee: string;
+        status: 'up' | 'down';
+    }[];
+    budget: {
+        annee: string;
+        montant: number;
+        designation: string;
+        details: {
+            ligne: string;
+            credit: number;
+        }[];
+    }[];
+    plansHebdo: {
+        designation: string;
+        montant: number;
+        lignes: string[];
+        ordres: {
+            ligne: string;
+            beneficiaire: string;
+            montant: number;
+            status: 'OK' | 'PENDING' | 'NO'
+        }[];
+    }[];
+    parcours: {
+        etudiant: any;
+        programme: string;
+        annee: string;
+        decision: 'Admis' | 'Non Admis' | 'En attente';
+        status: 'OK' | 'PENDING' | 'NO';
+        etablissement: any;
+        tranche: any;
+    }[];
+    transactions: Transaction[];
+}
+
+export default function FinanceDashboard({
+    metriques,
+    budget,
+    plansHebdo,
+    parcours,
+    transactions
+}: FinaceProps) {
     return (
         <div className="grid grid-cols-12 gap-4 md:gap-6">
             <div className="col-span-12 space-y-3">
@@ -33,7 +93,7 @@ export default function FinanceDashboard() {
             </div>
 
             <div className="col-span-12 ">
-                <RecentOrders />
+                <Transactions data={transactions} />
             </div>
         </div>
     );

@@ -20,6 +20,8 @@ const TrancheSchema: Schema = new Schema({
     montant: { type: Number, required: true },
     frais: { type: Schema.Types.ObjectId, ref: 'Frais', required: true },
     description: [{ type: String }],
+}, {
+    timestamps: true
 })
 
 const Tranche: Model<ITranche> = mongoose.models.Tranche || mongoose.model<ITranche>('Tranche', TrancheSchema);
@@ -31,6 +33,8 @@ const PaiementSchema: Schema = new Schema({
     orderNumber: { type: String, required: true },
     tranche: { type: Schema.Types.ObjectId, ref: 'Tranche', required: true },
     description: [{ type: String }],
+}, {
+    timestamps: true
 });
 
 const Paiement: Model<IPaiement> = mongoose.models.Paiement || mongoose.model<IPaiement>('Paiement', PaiementSchema);

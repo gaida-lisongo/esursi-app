@@ -56,7 +56,7 @@ const OrdreSchema: Schema = new Schema({
     montant: { type: Number, required: true },
     description: [{ type: String }],
     status: { type: String, enum: ['OK', 'PENDING', 'NO'], default: 'PENDING' },
-})
+}, { timestamps: true })
 
 const Ligne: Model<ILigne> = mongoose.models.Ligne || mongoose.model<ILigne>('Ligne', LigneSchema);
 const Budget: Model<IBudget> = mongoose.models.Budget || mongoose.model<IBudget>('Budget', BudgetSchema);

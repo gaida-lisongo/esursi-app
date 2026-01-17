@@ -1,6 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/connect";
+import { Paiement, Tranche } from "@/lib/models";
 import { Frais, Quota } from "@/lib/models/Frais";
 import { revalidatePath } from "next/cache";
 
@@ -115,6 +116,41 @@ export async function removeQuota(fraisId: string, quotaId: string) {
         });
         revalidatePath("/(admin)/frais");
         return { success: true, message: "Quota retiré" };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+// --- PAIEMENTS FRAIS ---
+export async function getTransactionsByFrais(fraisId: string): Promise<{
+    success: boolean;
+    message?: string;
+    data?: any[];
+}> {
+    try {
+        await dbConnect();
+
+        // Trouver d'abord les tranches associées au frais
+        const trancheIds: any[] = await Tranche.find({ frais: fraisId }).distinct("_id");
+
+        // Filtrer les paiements qui appartiennent à ces tranches
+        const transactions = await Paiement.find({ tranche: { $in: trancheIds } })
+            .populate("etudiant")
+            .populate({
+                path: "tranche",
+                populate: {
+                    path: "frais"
+                }
+            })
+            .lean();
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(transactions)).map((t: any) => ({
+                ...t,
+                id: t._id.toString()
+            }))
+        };
     } catch (error: any) {
         return { success: false, message: error.message };
     }

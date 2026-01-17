@@ -7,6 +7,8 @@ import CardCrudManager from "@/components/common/CardCrudManager";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { ArrowUpIcon, TableIcon, PieChartIcon } from "@/icons";
 import FinanceDashboard from "@/components/etablissement/Dashboard";
+import { getAnnees } from "@/lib/actions/education/anneeActions";
+import { getFraisByAnnee, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
 
 export default function ProvinceReportingPage() {
     const { provinceId } = useParams();
@@ -15,6 +17,51 @@ export default function ProvinceReportingPage() {
     const [province, setProvince] = useState<any>(null);
     const [selectedEtab, setSelectedEtab] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [annees, setAnnees] = useState<any[]>([]);
+
+    //Fetch années from Server Action
+
+    const loadAnnees = async () => {
+        const resAnnees = await getAnnees();
+
+        if (resAnnees.success) {
+            const data = resAnnees.data;
+
+            const years = data.map(async (annee: any) => {
+                let transaction: { _id: any; annee: string; data: any[] } = {
+                    _id: annee?._id,
+                    annee: annee?.debut + ' - ' + annee?.fin,
+                    data: []
+                };
+
+                let frais = [];
+                const reqAnness = await getFraisByAnnee(annee?._id)
+                if (reqAnness.success) {
+                    const data = reqAnness.data;
+                    frais = data;
+                }
+
+                if (frais?.length > 0) {
+                    for (const f of frais) {
+                        const reqTransactions = await getTransactionsByFrais(f?._id);
+
+                        if (reqTransactions.success) {
+                            const data = reqTransactions.data;
+
+                            if (data) {
+                                transaction.data.push(...data);
+                            }
+                        }
+                    }
+                }
+                return transaction;
+            });
+
+            Promise.all(years).then((years) => {
+                setAnnees(years);
+            });
+        };
+    }
 
     useEffect(() => {
         const load = async () => {
@@ -28,6 +75,7 @@ export default function ProvinceReportingPage() {
             setLoading(false);
         };
         load();
+        loadAnnees();
     }, [provinceId]);
 
     if (selectedEtab) {
@@ -48,7 +96,13 @@ export default function ProvinceReportingPage() {
                     </div>
                 </div>
 
-                <FinanceDashboard />
+                <FinanceDashboard
+                    metriques={[]}
+                    budget={[]}
+                    plansHebdo={[]}
+                    parcours={[]}
+                    transactions={annees}
+                />
             </div>
         );
     }
