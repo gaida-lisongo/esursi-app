@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
     try {
         await dbConnect();
-        const provinces = await Province.find();
+        const provinces = await Province.find().where("actif").equals(true);
         return NextResponse.json({ success: true, provinces });
     } catch (error) {
         return NextResponse.json({ success: false, error }, { status: 500 });
