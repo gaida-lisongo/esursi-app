@@ -34,9 +34,9 @@ export async function GET(request: Request) {
                     nref: nref,
                 }
             }
-            etablissementSchems = Etablissement.find(query)
+            etablissementSchems = Etablissement.find(query).where("actif").equals(true);
         } else {
-            etablissementSchems = Etablissement.find()
+            etablissementSchems = Etablissement.find().where("actif").equals(true);
         }
         const etablissements = await etablissementSchems
         return NextResponse.json({ success: true, etablissements });
