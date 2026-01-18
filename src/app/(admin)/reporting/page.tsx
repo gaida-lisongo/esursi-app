@@ -40,7 +40,7 @@ export default function ReportingPage() {
                 customActions={(item) => (
                     <button
                         onClick={() => router.push(`/reporting/${item.id}`)}
-                        className="p-2 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-500/20 scale-110 active:scale-95 transition-all flex items-center gap-2 px-4 text-xs font-bold"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white transition-colors bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700"
                     >
                         <span>Ouvrir</span>
                         <ArrowUpIcon className="w-4 h-4 rotate-90" />
