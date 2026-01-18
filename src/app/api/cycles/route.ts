@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
 import { Cycle, Programme } from "@/lib/models";
-import mongoose from "mongoose";
 
 export async function GET(request: Request) {
     try {
@@ -10,11 +9,11 @@ export async function GET(request: Request) {
         const id = searchParams.get("id") || "";
 
         if (id) {
-            const cycleId = new mongoose.Types.ObjectId(id);
+            const cycleId = id.toString();
             const programmes = await Programme.find({ cycle: cycleId }).populate("cycle").where("actif").equals(true);
             return NextResponse.json({ success: true, programmes });
         } else {
-            const cycles = await Cycle.find().populate("programmes").where("actif").equals(true);
+            const cycles = await Cycle.find().where("actif").equals(true);
             return NextResponse.json({ success: true, cycles });
         }
     } catch (error) {
