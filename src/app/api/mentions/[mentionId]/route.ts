@@ -26,7 +26,7 @@ export async function GET(request: Request, props: { params: Promise<{ mentionId
     try {
         await dbConnect();
         const mentionId = params.mentionId;
-        const facultes = await Faculte.find({ mention: mentionId.toString() }).populate("mention");
+        const facultes = await Faculte.find({ mention: mentionId.toString() }).populate("mention").populate("equipe.agent");
         return NextResponse.json({ success: true, facultes });
     } catch (error) {
         return NextResponse.json({ success: false, error }, { status: 500 });
