@@ -17,6 +17,7 @@ export interface IFaculte extends Document {
         isActif: boolean;
     }];
     couverture: string;
+    filieres: string[];
 }
 
 export interface IMention extends Document {
@@ -96,6 +97,7 @@ const FaculteSchema: Schema = new Schema<IFaculte>({
         isActif: { type: Boolean, default: true },
     }],
     couverture: { type: String, required: false },
+    filieres: [{ type: String }],
 }, { timestamps: true });
 
 const Etablissement: Model<IEtablissement> = mongoose.models.Etablissement || mongoose.model<IEtablissement>('Etablissement', EtablissementSchema);
