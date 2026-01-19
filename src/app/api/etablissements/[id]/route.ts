@@ -12,15 +12,21 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
         const etablissement = await Etablissement.findById(id)
             .populate("province")
             .populate("coge.agent")
-            .populate("rapports.annee");
+            .populate("rapports.annee")
+            .lean();
 
         const mentions = await Mention.find({ etablissement: id })
             .populate("domaine")
-            .populate("domaine.cycle");
+            .populate("domaine.cycle")
+            .lean();
         const mentionsWithFacultes = [];
         for (const mention of mentions) {
-            const facultes = await Faculte.find({ mention: mention._id }).populate("mention").populate("equipe.agent");
-            const programmes = await Programme.find({ cycle: mention?.domaine?.cycle?._id });
+            const facultes = await Faculte.find({ mention: mention._id })
+                .populate("mention")
+                .populate("equipe")
+                .populate("equipe.agent")
+                .lean();
+            const programmes = await Programme.find({ cycle: mention?.domaine?.cycle?._id }).lean();
             mentionsWithFacultes.push({
                 ...mention,
                 facultes: facultes || [],
