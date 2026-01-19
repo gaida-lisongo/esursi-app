@@ -1,5 +1,5 @@
 import { Annee, Activite } from './Annee';
-import { Etablissement, Faculte } from './Etablissement';
+import { Etablissement, Mention, Faculte } from './Etablissement';
 import Agent from './Agent';
 import { Frais, Quota } from './Frais';
 import Grade from './Grade';
