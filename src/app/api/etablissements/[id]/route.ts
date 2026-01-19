@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
-import { Etablissement } from "@/lib/models";
+import { Etablissement, Programme } from "@/lib/models";
 import { Faculte, Mention } from "@/lib/models/Etablissement";
 
 //Read - Etablissement
@@ -15,13 +15,18 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
             .populate("rapports.annee")
             .lean();
 
-        const mentions = await Mention.find({ etablissement: id }).populate("domaine").lean();
+        const mentions = await Mention.find({ etablissement: id })
+            .populate("domaine")
+            .populate("domaine.cycle")
+            .lean();
         const mentionsWithFacultes = [];
         for (const mention of mentions) {
             const facultes = await Faculte.find({ mention: mention._id }).lean();
+            const programmes = await Programme.find({ cycle: mention.domaine.cycle._id }).lean();
             mentionsWithFacultes.push({
                 ...mention,
-                facultes: facultes || []
+                facultes: facultes || [],
+                programmes: programmes || []
             });
         }
         return NextResponse.json({ success: true, data: { ...etablissement, mentions: mentionsWithFacultes } });
