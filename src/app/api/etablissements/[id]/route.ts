@@ -22,7 +22,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
         const mentionsWithFacultes = [];
         for (const mention of mentions) {
             const facultes = await Faculte.find({ mention: mention._id }).lean();
-            const programmes = await Programme.find({ cycle: mention.domaine.cycle._id }).lean();
+            const programmes = await Programme.find({ cycle: mention?.domaine?.cycle?._id }).lean();
             mentionsWithFacultes.push({
                 ...mention,
                 facultes: facultes || [],
