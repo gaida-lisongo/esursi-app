@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 import Mail from "@/lib/utils/Mail";
+import { Etablissement } from "@/lib/models";
+import { IEtablissement } from "@/lib/models/Etablissement";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key-12345";
 
@@ -23,28 +25,73 @@ export async function loginAdmin(identifier: string, password: string) {
         if (!agent) {
             return { success: false, message: "Identifiants incorrects" };
         }
+        const profiles = [
+            {
+                fonction: "Directeur Général",
+                auth: "DG"
+            },
+            {
+                fonction: "Secrétaire Général Académique",
+                auth: "SGACAD"
+            },
+            {
+                fonction: "Secrétaire Général Administratif",
+                auth: "SGAD"
+            },
+            {
+                fonction: "Secrétaire Général à la Recherche",
+                auth: "SGR"
+            },
+            {
+                fonction: "Administrateur du Budget",
+                auth: "AB"
+            }
+        ]
 
-        // Find admin record for this agent
-        const admin = await Admin.findOne({ agentId: agent._id }).lean();
+        const autorisations = agent.autorisation;
 
-        if (!admin) {
-            return { success: false, message: "Vous n'avez pas de droits administratifs" };
+        const rolesUser = autorisations.filter((autorisation: { role: string; secureKey: string; status: 'OK' | 'PENDING' | 'NO' }) => {
+            return autorisation.status === 'OK' && autorisation.secureKey === password;
+        });
+
+        if (rolesUser.length === 0) {
+            return { success: false, message: "Identifiants incorrects" };
         }
 
-        // Hash the input password to compare
-        const hashedInput = crypto.createHash("sha256").update(password).digest("hex");
+        const profilesUser = rolesUser
+            .map((role: { role: string; secureKey: string; status: 'OK' | 'PENDING' | 'NO' }) => {
+                return profiles.find((profile) => profile.auth === role.role);
+            })
+            .filter((profile): profile is { fonction: string; auth: string } => profile !== undefined);
 
-        if (hashedInput !== admin.password) {
-            return { success: false, message: "Identifiants incorrects" };
+        // Define a flexible type for the establishment results
+        type EtabResult = {
+            etablissements: unknown[];
+            fonction: string;
+            auth: string;
+        };
+
+        const etabsUser: EtabResult[] = [];
+
+        for (const profile of profilesUser) {
+            // Find establishments where coge.agent = agent._id and coge.fonction = profile.fonction
+            const etablissements = await Etablissement.find({
+                "coge.agent": agent._id,
+                "coge.fonction": profile.fonction
+            }).lean();
+
+            etabsUser.push({
+                etablissements: etablissements,
+                fonction: profile.fonction,
+                auth: profile.auth
+            });
         }
 
         // Generate JWT
         const token = jwt.sign(
             {
-                adminId: admin._id,
-                agentId: agent._id,
-                role: admin.role,
-                name: `${agent.nom} ${agent.prenom}`
+                agent: agent,
+                etabsUser: etabsUser,
             },
             JWT_SECRET,
             { expiresIn: "1d" }
@@ -59,19 +106,17 @@ export async function loginAdmin(identifier: string, password: string) {
         });
 
         const userData = JSON.parse(JSON.stringify({
-            id: admin._id,
             agent: agent,
-            name: `${agent.nom} ${agent.prenom}`,
-            email: agent.email,
-            role: admin.role,
-            photo: agent.photo
+            etabsUser: etabsUser,
         }));
 
         return {
             success: true,
             message: "Connexion réussie",
-            token,
-            user: userData
+            data: {
+                token,
+                user: userData
+            }
         };
 
     } catch (error: any) {
