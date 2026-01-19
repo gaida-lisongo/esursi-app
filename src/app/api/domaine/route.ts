@@ -52,8 +52,8 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
     try {
         await dbConnect();
-        const { id, designation, code, description, mentions, cycle } = await request.json();
-        const domaine = await Domaine.findByIdAndUpdate(id, { designation, code, description, mentions, cycle }, { new: true });
+        const body = await request.json();
+        const domaine = await Domaine.findByIdAndUpdate(body?.id, body, { new: true });
         return NextResponse.json({ success: true, domaine });
     } catch (error) {
         return NextResponse.json({ success: false, error }, { status: 500 });
