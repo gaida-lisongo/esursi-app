@@ -39,8 +39,8 @@ export async function PUT(request: Request, props: { params: Promise<{ mentionId
     try {
         await dbConnect();
         const body = await request.json();
-        const mentionId = params.mentionId;
-        const facultes = await Faculte.findByIdAndUpdate(mentionId.toString(), body, { new: true }).populate("mention");
+        const { faculteId, payload } = body;
+        const facultes = await Faculte.findByIdAndUpdate(faculteId.toString(), payload, { new: true });
         return NextResponse.json({ success: true, facultes });
     } catch (error) {
         return NextResponse.json({ success: false, error }, { status: 500 });
