@@ -36,14 +36,24 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 }
 
 //Update - Etablissement
+//Update - Etablissement
 export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     try {
         await dbConnect();
+
+        // Verify Authentication
+        const { verifyEtablissementToken, unauthorizedResponse } = await import("@/lib/utils/verifyToken");
+        const decoded = verifyEtablissementToken(request, params.id);
+
+        if (!decoded) {
+            return unauthorizedResponse();
+        }
+
         const body = await request.json();
         const id = params.id;
         const etablissement = await Etablissement.findByIdAndUpdate(id, body, { new: true }).populate("province");
-        return NextResponse.json({ success: true, etablissement });
+        return NextResponse.json({ success: true, data: etablissement });
     } catch (error) {
         return NextResponse.json({ success: false, error }, { status: 500 });
     }
