@@ -17,7 +17,11 @@ export interface IFaculte extends Document {
         isActif: boolean;
     }];
     couverture: string;
-    filieres: string[];
+    filieres: {
+        title: string;
+        description: string;
+        token: string;
+    }[];
 }
 
 export interface IMention extends Document {
