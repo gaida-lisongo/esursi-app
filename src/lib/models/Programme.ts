@@ -18,6 +18,15 @@ export interface IProgramme extends Document {
     actif: boolean;
 }
 
+export interface IDomaine extends Document {
+    designation: string;
+    code: string;
+    description?: string;
+    mentions: string[];
+    maquetteUrl?: string;
+    cycle: Schema.Types.ObjectId;
+}
+
 const CycleSchema: Schema = new Schema<ICycle>({
     designation: { type: String, required: true },
     code: { type: String, required: true },
@@ -36,10 +45,21 @@ const ProgrammeSchema: Schema = new Schema<IProgramme>({
     actif: { type: Boolean, default: true },
 });
 
+const DomaineSchema: Schema = new Schema<IDomaine>({
+    designation: { type: String, required: true },
+    code: { type: String, required: true },
+    description: { type: String },
+    mentions: { type: [String], required: true },
+    maquetteUrl: { type: String, required: false },
+    cycle: { type: Schema.Types.ObjectId, ref: 'Cycle', required: true },
+});
+
 const Cycle: Model<ICycle> = mongoose.models.Cycle || mongoose.model<ICycle>('Cycle', CycleSchema);
 const Programme: Model<IProgramme> = mongoose.models.Programme || mongoose.model<IProgramme>('Programme', ProgrammeSchema);
+const Domaine: Model<IDomaine> = mongoose.models.Domaine || mongoose.model<IDomaine>('Domaine', DomaineSchema);
 
 export {
     Cycle,
-    Programme
+    Programme,
+    Domaine
 }
