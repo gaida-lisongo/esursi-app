@@ -9,7 +9,7 @@ export async function GET() {
         /**
          * response { totalEtab: X, totalAgent: X, totalEtudiant: X, totalParcours: X}
          */
-        const totalEtab = await Etablissement.find().where({ action: true }).countDocuments();
+        const totalEtab = await Etablissement.find().where({ actif: true }).countDocuments();
         const totalAgent = await Agent.find().where({ action: true }).countDocuments();
         const totalEtudiant = await Etudiant.find().where({ action: true }).countDocuments();
 
