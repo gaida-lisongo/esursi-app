@@ -17,8 +17,13 @@ export async function GET(req: Request) {
             const etudiant = await Etudiant.findOne(query);
             if (!etudiant) return NextResponse.json({ success: false, message: "Étudiant non trouvé" }, { status: 404 });
 
-            const parcours = await Parcours.find({ etudiant: (etudiant._id).toString() });
-            const dossier = await DossierEtudiant.find({ etudiant: (etudiant._id).toString() });
+            const parcours = await Parcours.find({ etudiant: (etudiant._id).toString() })
+                .populate("programme")
+                .populate("annee")
+                .populate("etablissement")
+                .populate("tranches");
+            const dossier = await DossierEtudiant.find({ etudiant: (etudiant._id).toString() })
+                .populate("etudiant");
             return NextResponse.json({ success: true, data: { etudiant, dossier, parcours } });
 
         }
