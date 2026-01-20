@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
 import { DossierEtudiant, Etudiant, Parcours } from "@/lib/models/index";
 
-export async function GET(props: { params: { matricule?: string } }) {
-    const { matricule } = await props.params;
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const matricule = searchParams.get("matricule");
     try {
         await dbConnect();
 
