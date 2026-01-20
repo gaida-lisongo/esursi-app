@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
-import { Etudiant } from "@/lib/models/index";
+import { DossierEtudiant, Etudiant, Parcours } from "@/lib/models/index";
 
-export async function GET(props: { params: { matricule: string } }) {
+export async function GET(props: { params: { matricule?: string } }) {
     const { matricule } = await props.params;
     try {
         await dbConnect();
@@ -11,9 +11,17 @@ export async function GET(props: { params: { matricule: string } }) {
 
         if (matricule) {
             query = { matricule: matricule };
+
+            const etudiant = await Etudiant.findOne(query);
+            if (!etudiant) return NextResponse.json({ success: false, message: "Étudiant non trouvé" }, { status: 404 });
+
+            const parcours = await Parcours.find({ etudiant: (etudiant._id).toString() });
+            const dossier = await DossierEtudiant.find({ etudiant: (etudiant._id).toString() });
+            return NextResponse.json({ success: true, data: { etudiant, dossier, parcours } });
+
         }
 
-        const items = await Etudiant.find(query).sort({ createdAt: -1 });
+        const items = await Etudiant.find().sort({ createdAt: -1 });
         return NextResponse.json({ success: true, data: items });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
