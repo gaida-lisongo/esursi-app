@@ -20,8 +20,7 @@ export async function GET(req: Request) {
             const parcours = await Parcours.find({ etudiant: (etudiant._id).toString() })
                 .populate("programme")
                 .populate("annee")
-                .populate("etablissement")
-                .populate("tranches");
+                .populate("etablissement");
             const dossier = await DossierEtudiant.find({ etudiant: (etudiant._id).toString() })
                 .populate("etudiant");
             return NextResponse.json({ success: true, data: { etudiant, dossier, parcours } });
