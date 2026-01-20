@@ -2,10 +2,18 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/connect";
 import { Etudiant } from "@/lib/models/index";
 
-export async function GET() {
+export async function GET(props: { params: { matricule: string } }) {
+    const { matricule } = await props.params;
     try {
         await dbConnect();
-        const items = await Etudiant.find({}).sort({ createdAt: -1 });
+
+        let query = {};
+
+        if (matricule) {
+            query = { matricule: matricule };
+        }
+
+        const items = await Etudiant.find(query).sort({ createdAt: -1 });
         return NextResponse.json({ success: true, data: items });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
