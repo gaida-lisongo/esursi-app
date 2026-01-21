@@ -34,11 +34,11 @@ export default function UserDropdown() {
     return null;
   }
 
-  const displayName = user.agent?.nom && user.agent?.prenom
-    ? `${user.agent.nom} ${user.agent.prenom}`
+  const displayName = user?.nom && user?.prenom
+    ? `${user.nom} ${user.prenom}`
     : "Utilisateur";
-  const displayEmail = user.agent?.email || "email@example.com";
-  const userPhoto = user.agent?.photo;
+  const displayEmail = user?.email || "email@example.com";
+  const userPhoto = user?.photo;
 
   return (
     <div className="relative">
