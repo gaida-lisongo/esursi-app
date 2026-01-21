@@ -110,6 +110,8 @@ export async function loginAdmin(identifier: string, password: string) {
             etabsUser: etabsUser,
         }));
 
+        console.log("User data info : ", userData);
+
         return {
             success: true,
             message: "Connexion réussie",
