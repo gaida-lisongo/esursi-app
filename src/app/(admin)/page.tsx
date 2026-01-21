@@ -5,6 +5,7 @@ import StatisticsChart from "@/components/ecommerce/StatisticsChart";
 import AnneesPage from "./annees/page";
 import AgentsPage from "./(personnel)/agents/page";
 import DashboardData from "@/components/ecommerce/DashboardData";
+import { useAdminStore } from "@/store/useAdminStore";
 
 export const metadata: Metadata = {
   title: "Dashboard | ESURSI-APP",

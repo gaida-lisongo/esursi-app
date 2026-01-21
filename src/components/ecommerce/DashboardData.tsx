@@ -6,8 +6,10 @@ import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
 import { getProvinces } from "@/lib/actions/personnels/province/getProvinces";
 import { getEtablissementsByProvince } from "@/lib/actions/finance/reportingActions";
 import Spinner from "@/components/ui/Spinner";
+import { useAdminStore } from "@/store/useAdminStore";
 
 export default function DashboardData() {
+    const { user, etabsUser } = useAdminStore();
     const [provinces, setProvinces] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -51,9 +53,10 @@ export default function DashboardData() {
         );
     }
 
+
     return (
         <>
-            <EcommerceMetrics data={provinces} />
+            <EcommerceMetrics data={etabsUser ?? []} />
             <MonthlySalesChart data={provinces} />
         </>
     );

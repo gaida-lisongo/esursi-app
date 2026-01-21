@@ -5,8 +5,8 @@ export default function EcommerceMetrics({
   data
 }: { data: any[] }) {
 
-  const totalProvinces = data.length;
-  const totalEtablissements = data.reduce((sum, province) => sum + (province.etabs?.length || 0), 0);
+  const totalProvinces = data?.reduce((acc, role) => acc + (role.etablissements.length > 0 ? 1 : 0), 0);
+  const totalEtablissements = data?.reduce((acc, role) => acc + role.etablissements.length, 0);
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
@@ -15,7 +15,7 @@ export default function EcommerceMetrics({
         <div className="flex items-center justify-between">
           <div>
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Provinces
+              Comité de Gestion
             </span>
             <h4 className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
               {totalProvinces}
