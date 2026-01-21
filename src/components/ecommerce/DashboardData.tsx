@@ -57,7 +57,7 @@ export default function DashboardData() {
     return (
         <>
             <EcommerceMetrics data={etabsUser ?? []} />
-            <MonthlySalesChart data={provinces} />
+            <MonthlySalesChart data={etabsUser ?? []} />
         </>
     );
 }

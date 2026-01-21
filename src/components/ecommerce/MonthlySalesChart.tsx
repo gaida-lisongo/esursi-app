@@ -12,8 +12,8 @@ export default function MonthlySalesChart({
 }: { data: any[] }) {
 
   // Transform data for chart
-  const categories = data.map(province => province.designation || province.code);
-  const seriesData = data.map(province => province.etabs?.length || 0);
+  const categories = data.map(role => role.auth || role.fonction);
+  const seriesData = data.map(role => role.etablissements?.length || 0);
 
   const options: ApexOptions = {
     colors: ["#465fff"],
@@ -112,7 +112,7 @@ export default function MonthlySalesChart({
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Établissements par Province
+            Mes établissements
           </h4>
         </div>
       </div>
