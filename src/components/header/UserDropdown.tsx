@@ -27,6 +27,8 @@ export default function UserDropdown() {
     router.push("/signin");
   };
 
+  console.log(user);
+
   // Fallback si pas d'utilisateur connecté
   if (!user) {
     return null;

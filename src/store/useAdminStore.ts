@@ -4,14 +4,20 @@ import { loginAdmin, logoutAdmin } from "@/lib/actions/auth/actions";
 import { updateAgent, updateAdmin } from "@/lib/actions/personnels/agent/actions";
 
 interface AdminUser {
-    id: string;
     agent: any;
-    role: string;
+    etabsUser: EtabUser[];
+}
+
+interface EtabUser {
+    etablissements: any[];
+    auth: string;
+    fonction: string;
 }
 
 interface AdminState {
-    user: AdminUser | null;
+    user: any | null;
     token: string | null;
+    etabsUser: EtabUser[] | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string | null;
@@ -33,6 +39,7 @@ export const useAdminStore = create<AdminState>()(
         (set, get) => ({
             user: null,
             token: null,
+            etabsUser: null,
             isAuthenticated: false,
             isLoading: false,
             error: null,
@@ -41,10 +48,14 @@ export const useAdminStore = create<AdminState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const result = await loginAdmin(identifier, password);
-                    if (result.success && result.user && result.token) {
+
+                    if (result.success) {
+                        const { token, user } = result?.data as { token: string; user: AdminUser }
+                        const { agent, etabsUser } = user;
                         set({
-                            user: result.user,
-                            token: result.token,
+                            user: agent,
+                            token: token,
+                            etabsUser: etabsUser,
                             isAuthenticated: true,
                             isLoading: false,
                         });
@@ -65,6 +76,7 @@ export const useAdminStore = create<AdminState>()(
                 set({
                     user: null,
                     token: null,
+                    etabsUser: null,
                     isAuthenticated: false,
                 });
             },
@@ -76,7 +88,7 @@ export const useAdminStore = create<AdminState>()(
                     if (result.success) {
                         // If the updated agent is the current logged-in user, update local state
                         const currentUser = get().user;
-                        if (currentUser && currentUser.agent._id === agentId) {
+                        if (currentUser && currentUser._id === agentId) {
                             set({
                                 user: {
                                     ...currentUser
@@ -103,7 +115,6 @@ export const useAdminStore = create<AdminState>()(
                             set({
                                 user: {
                                     ...currentUser,
-                                    role: formData.role || currentUser.role,
                                 }
                             });
                         }
