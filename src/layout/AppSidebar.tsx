@@ -115,8 +115,7 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { etabsUser } = useAdminStore();
-  const [cogeMenu, setCogeMenu] = useState<{ label: string, menu: NavItem[] }[]>([]);
+  const { etabsUser, annees } = useAdminStore();
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
@@ -249,50 +248,35 @@ const AppSidebar: React.FC = () => {
   // const isActive = (path: string) => path === pathname;
   const isActive = useCallback((path: string) => path === pathname, [pathname]);
 
-  const fetchAnnees = async () => {
-    try {
-      const req = await fetch("/api/annees");
-      const res = await req.json();
-      if (res?.success) {
-        const annees = res.annees;
+  const cogeMenu = React.useMemo(() => {
+    if (!etabsUser || !annees) return [];
 
-        const categories: { label: string, menu: NavItem[] }[] = [];
-        if (etabsUser) {
+    const categories: { label: string, menu: NavItem[] }[] = [];
 
-          etabsUser?.map((etabUser) => {
-            if (etabUser?.etablissements?.length > 0) {
-              const menu: NavItem[] = [];
+    etabsUser.forEach((etabUser) => {
+      if (etabUser?.etablissements?.length > 0) {
+        const menu: NavItem[] = [];
 
-              etabUser?.etablissements?.map((etab) => {
-                menu.push({
-                  name: etab?.sigle,
-                  icon: <ListIcon />,
-                  subItems: annees?.map((annee: any) => ({
-                    name: annee?.debut + " - " + annee?.fin,
-                    path: `/etablissements/${etab?._id}/${annee?._id}`,
-                  }))
-                })
-              })
+        etabUser.etablissements.forEach((etab) => {
+          menu.push({
+            name: etab?.sigle,
+            icon: <ListIcon />,
+            subItems: annees?.map((annee: any) => ({
+              name: annee?.debut + " - " + annee?.fin,
+              path: `/etab/${etab?._id}/${annee?._id}`,
+            }))
+          });
+        });
 
-              categories.push({
-                label: etabUser?.fonction,
-                menu: menu
-              })
-            }
-          })
-        }
-
-        setCogeMenu(categories);
+        categories.push({
+          label: etabUser?.fonction,
+          menu: menu
+        });
       }
-    } catch (error) {
-      console.error("Error fetching annees:", error);
-    }
-  };
+    });
 
-  useEffect(() => {
-    console.log("etabsUser : ", etabsUser);
-    fetchAnnees();
-  }, [etabsUser]);
+    return categories;
+  }, [etabsUser, annees]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item

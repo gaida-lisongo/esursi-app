@@ -21,6 +21,7 @@ interface AdminState {
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string | null;
+    annees: any[] | null;
 
     // Auth Actions
     login: (identifier: string, password: string) => Promise<{ success: boolean; message: string }>;
@@ -32,6 +33,7 @@ interface AdminState {
 
     // UI Helpers
     clearError: () => void;
+    setAnnees: (annees: any[]) => void;
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -43,6 +45,7 @@ export const useAdminStore = create<AdminState>()(
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            annees: null,
 
             login: async (identifier, password) => {
                 set({ isLoading: true, error: null });
@@ -128,6 +131,7 @@ export const useAdminStore = create<AdminState>()(
             },
 
             clearError: () => set({ error: null }),
+            setAnnees: (annees: any[]) => set({ annees }),
         }),
         {
             name: "admin-storage",
