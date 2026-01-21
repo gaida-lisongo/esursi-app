@@ -200,6 +200,7 @@ const StudentModal = ({ student, onClose }: { student: any; onClose: () => void 
 };
 
 export default function Transactions({ data }: { data: TransactionData[] }) {
+  console.log("Transactions data :", data);
   const [selectedYearIndex, setSelectedYearIndex] = useState(0);
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

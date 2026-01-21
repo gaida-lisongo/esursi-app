@@ -27,6 +27,7 @@ export default function ProvinceReportingPage() {
     const loadDashboardData = async (etab: any) => {
         if (!etab) return;
         setDashboardLoading(true);
+
         try {
             const resAnnees = await getAnnees();
             if (resAnnees.success) {

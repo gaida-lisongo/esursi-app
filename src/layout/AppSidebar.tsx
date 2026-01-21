@@ -263,7 +263,7 @@ const AppSidebar: React.FC = () => {
             icon: <ListIcon />,
             subItems: annees?.map((annee: any) => ({
               name: annee?.debut + " - " + annee?.fin,
-              path: `/etab/${etab?._id}/${annee?._id}`,
+              path: `/${etabUser?.auth.toLowerCase()}/${etab?._id}-${annee?._id}`,
             }))
           });
         });

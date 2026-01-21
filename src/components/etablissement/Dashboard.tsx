@@ -73,6 +73,10 @@ export default function FinanceDashboard({
     parcours,
     transactions
 }: FinaceProps) {
+    console.log("transactions:", transactions);
+    console.log("budget:", budget);
+    console.log("parcours:", parcours);
+    console.log("metriques:", metriques);
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
