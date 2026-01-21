@@ -20,6 +20,7 @@ import {
   DollarLineIcon,
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
+import { useAdminStore } from "@/store/useAdminStore";
 
 type NavItem = {
   name: string;
@@ -63,23 +64,23 @@ const navItems: NavItem[] = [
   //     { name: "404 Error", path: "/error-404", pro: false },
   //   ],
   // },
-  {
-    name: "Enseignement",
-    icon: <DocsIcon />,
-    subItems: [
-      { name: "Cycles & Programmes", path: "/programmes", pro: false },
-      // { name: "Années Académiques", path: "/annees", pro: false },
-      { name: "Établissements", path: "/etablissements", pro: false },
-    ],
-  },
-  {
-    name: "Finance",
-    icon: <DollarLineIcon />,
-    subItems: [
-      { name: "Frais Académiques", path: "/frais", pro: false },
-      { name: "Suivi & Reporting", path: "/reporting", pro: false },
-    ],
-  },
+  // {
+  //   name: "Enseignement",
+  //   icon: <DocsIcon />,
+  //   subItems: [
+  //     { name: "Cycles & Programmes", path: "/programmes", pro: false },
+  //     // { name: "Années Académiques", path: "/annees", pro: false },
+  //     { name: "Établissements", path: "/etablissements", pro: false },
+  //   ],
+  // },
+  // {
+  //   name: "Finance",
+  //   icon: <DollarLineIcon />,
+  //   subItems: [
+  //     { name: "Frais Académiques", path: "/frais", pro: false },
+  //     { name: "Suivi & Reporting", path: "/reporting", pro: false },
+  //   ],
+  // },
 ];
 
 const othersItems: NavItem[] = [
@@ -114,12 +115,14 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
+  const { etabsUser } = useAdminStore();
+  const [cogeMenu, setCogeMenu] = useState<{ label: string, menu: NavItem[] }[]>([]);
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others"
+    menuType: string
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -235,7 +238,7 @@ const AppSidebar: React.FC = () => {
   );
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: string;
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
@@ -245,6 +248,51 @@ const AppSidebar: React.FC = () => {
 
   // const isActive = (path: string) => path === pathname;
   const isActive = useCallback((path: string) => path === pathname, [pathname]);
+
+  const fetchAnnees = async () => {
+    try {
+      const req = await fetch("/api/annees");
+      const res = await req.json();
+      if (res?.success) {
+        const annees = res.annees;
+
+        const categories: { label: string, menu: NavItem[] }[] = [];
+        if (etabsUser) {
+
+          etabsUser?.map((etabUser) => {
+            if (etabUser?.etablissements?.length > 0) {
+              const menu: NavItem[] = [];
+
+              etabUser?.etablissements?.map((etab) => {
+                menu.push({
+                  name: etab?.sigle,
+                  icon: <ListIcon />,
+                  subItems: annees?.map((annee: any) => ({
+                    name: annee?.debut + " - " + annee?.fin,
+                    path: `/etablissements/${etab?._id}/${annee?._id}`,
+                  }))
+                })
+              })
+
+              categories.push({
+                label: etabUser?.fonction,
+                menu: menu
+              })
+            }
+          })
+        }
+
+        setCogeMenu(categories);
+      }
+    } catch (error) {
+      console.error("Error fetching annees:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("etabsUser : ", etabsUser);
+    fetchAnnees();
+  }, [etabsUser]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item
@@ -285,7 +333,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: string) => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -348,7 +396,7 @@ const AppSidebar: React.FC = () => {
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
-              <h2
+              {/* <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
                   ? "lg:justify-center"
                   : "justify-start"
@@ -359,10 +407,29 @@ const AppSidebar: React.FC = () => {
                 ) : (
                   <HorizontaLDots />
                 )}
-              </h2>
+              </h2> */}
               {renderMenuItems(navItems, "main")}
             </div>
 
+            {
+              cogeMenu?.map((category, index) => (
+                <div key={index}>
+                  <h2
+                    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                      }`}
+                  >
+                    {isExpanded || isHovered || isMobileOpen ? (
+                      category.label
+                    ) : (
+                      <HorizontaLDots />
+                    )}
+                  </h2>
+                  {renderMenuItems(category.menu, "main_" + index)}
+                </div>
+              ))
+            }
 
           </div>
         </nav>
