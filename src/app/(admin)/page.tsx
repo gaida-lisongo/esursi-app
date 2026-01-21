@@ -27,13 +27,13 @@ export default function Ecommerce() {
         <StatisticsChart />
       </div> */}
 
-      <div className="col-span-12 xl:col-span-6">
+      {/* <div className="col-span-12 xl:col-span-6">
         <AgentsPage />
       </div>
 
       <div className="col-span-12 xl:col-span-6">
         <AnneesPage />
-      </div>
+      </div> */}
     </div>
   );
 }
