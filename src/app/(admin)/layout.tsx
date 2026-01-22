@@ -55,7 +55,7 @@ export default function AdminLayout({
           <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
         </div>
         {/* Auth Debug - only in development */}
-        <AuthDebug />
+        {/* <Auth Debug /> */}
       </div>
     </AuthGuard>
   );

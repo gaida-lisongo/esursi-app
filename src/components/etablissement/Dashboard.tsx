@@ -127,34 +127,23 @@ export default function FinanceDashboard({
                             </div>
                         </div>
                     )
-                    : action == "SGACAD" ?
-                        (
-                            <div className="col-span-12 flex flex-col lg:flex-row gap-3">
-                                <div className="lg:w-2/3 space-y-3">
-                                    {transactions.length > 0 && <Transactions data={transactions} />}
-                                </div>
-                                <div className="lg:w-1/3">
-                                    <AgentsPage personnel={"PAS"} etabId={etabId} anneeId={anneeId} />
-                                </div>
+                    : action == "SGAD" || action == "SGADMIN" ?
+                    (
+                        <div className="col-span-12 flex flex-col lg:flex-row gap-3">
+                            <div className="lg:w-2/3 space-y-3">
+                                {transactions.length > 0 && <Transactions data={transactions} />}
                             </div>
-                        )
-                        : action == "SGAD" || action == "SGADMIN" ?
-                            (
-                                <div className="col-span-12 flex flex-col lg:flex-row gap-3">
-                                    <div className="lg:w-2/3 space-y-3">
-                                        {transactions.length > 0 && <Transactions data={transactions} />}
-                                    </div>
-                                    <div className="lg:w-1/3">
-                                        <AgentsPage personnel={"PATO"} etabId={etabId} anneeId={anneeId} />
-                                    </div>
-                                </div>
-                            )
-                            :
-                            (
-                                <div className="col-span-12 ">
-                                    {transactions.length > 0 && <Transactions data={transactions} />}
-                                </div>
-                            )
+                            <div className="lg:w-1/3">
+                                <AgentsPage personnel={"PATO"} etabId={etabId} anneeId={anneeId} />
+                            </div>
+                        </div>
+                    )
+                    :
+                    (
+                        <div className="col-span-12 ">
+                            {transactions.length > 0 && <Transactions data={transactions} />}
+                        </div>
+                    )
             }
         </div>
     );
