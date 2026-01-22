@@ -7,6 +7,7 @@ import TargetChart from "../ecommerce/TargetChart";
 
 import { DecaissementCarousel } from "../finance/DecaissementCarousel";
 import Transactions from "../ecommerce/Transactions";
+import { isNull } from "util";
 
 export interface Transaction {
     _id: string;
@@ -64,6 +65,7 @@ interface FinaceProps {
     };
     parcours: Parcours[];
     transactions: Transaction[];
+    action?: string;
 }
 
 export default function FinanceDashboard({
@@ -71,12 +73,10 @@ export default function FinanceDashboard({
     metriques,
     budget,
     parcours,
-    transactions
+    transactions,
+    action
 }: FinaceProps) {
-    console.log("transactions:", transactions);
-    console.log("budget:", budget);
-    console.log("parcours:", parcours);
-    console.log("metriques:", metriques);
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
@@ -101,7 +101,7 @@ export default function FinanceDashboard({
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
                 <div className="lg:w-2/3 space-y-3">
                     {budget && <RevenuChart data={budget} />}
-                    {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={budget} />}
+                    {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={{ ...budget, userRole: action }} />}
                 </div>
                 <div className="lg:w-1/3">
                     {parcours.length > 0 && <TargetChart data={parcours} />}

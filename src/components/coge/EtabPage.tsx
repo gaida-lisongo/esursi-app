@@ -1,4 +1,4 @@
-import FinanceDashboard from "@/components/etablissement/Dashboard";
+import FinanceDashboard, { Parcours } from "@/components/etablissement/Dashboard";
 import { DownloadIcon, GroupIcon, LockIcon } from "@/icons";
 import { getBudgetsByAnneeEtab, getFraisByAnnee, getParcoursByAnneeEtab, getTransactionsByFrais } from "@/lib/actions/finance/fraisActions";
 import { Annee, Etablissement } from "@/lib/models";
@@ -13,7 +13,7 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
             .populate("rapports.annee");
 
         const transaction: { _id: any; annee: string; actif: boolean; data: any[] } = {
-            _id: annee?._id,
+            _id: annee?._id?.toString(),
             annee: annee?.debut + " - " + annee?.fin,
             actif: annee?.actif || false,
             data: [],
@@ -71,15 +71,17 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
                 },
             ];
 
-            console.log("transaction", transaction);
+            console.log("parcours", parcours);
 
             return (
                 <FinanceDashboard
                     isLoading={false}
                     metriques={stats}
-                    parcours={parcours}
+                    parcours={parcours as Parcours[]}
                     budget={budget}
                     transactions={[transaction]}
+                    action={role}
+
                 />
             )
         }

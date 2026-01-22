@@ -5,9 +5,9 @@ const DgPage = async (props: Promise<{ params: { slug: string } }>) => {
 
     const { slug } = await params;
 
-    const [etabId, anneeId, role] = slug.split("-");
+    const [etabId, anneeId] = slug.split("-");
 
-    return <EtabPage etabId={etabId} anneeId={anneeId} role={role} />;
+    return <EtabPage etabId={etabId} anneeId={anneeId} role={"DG"} />;
 
 };
 

@@ -16,8 +16,18 @@ export async function POST(req: Request) {
     try {
         await dbConnect();
         const body = await req.json();
-        const item = new Ordre(body);
+        const { planId, ...ordreData } = body;
+
+        const item = new Ordre(ordreData);
         await item.save();
+
+        if (planId) {
+            const { PlanHebdo } = await import("@/lib/models/index");
+            await PlanHebdo.findByIdAndUpdate(planId, {
+                $push: { ordres: item._id }
+            });
+        }
+
         return NextResponse.json({ success: true, data: item, message: "Ordre créé" });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
