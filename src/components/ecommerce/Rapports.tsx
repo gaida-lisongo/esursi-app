@@ -7,9 +7,10 @@ import {
     DownloadIcon,
     FileIcon,
     CalenderIcon,
-    CloseIcon
+    CloseIcon,
+    CheckCircleIcon
 } from "@/icons";
-import { addReport, deleteReport } from "@/lib/actions/etablissement/actions";
+import { addReport, deleteReport, uploadDocumentToServer } from "@/lib/actions/etablissement/actions";
 import { useRouter } from "next/navigation";
 import Spinner from "../ui/Spinner";
 
@@ -28,29 +29,54 @@ interface RapportsProps {
 const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
     const [isAdding, setIsAdding] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         titre: "",
         date: new Date().toISOString().split('T')[0],
-        file: null as File | null
+        document: ""
     });
 
     const router = useRouter();
 
-    const handleAdd = async (e: React.FormEvent) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const data = new FormData();
+            data.append("file", file);
+
+            const res = await uploadDocumentToServer(data);
+            if (res.success && res.link) {
+                setFormData(prev => ({ ...prev, document: res.link! }));
+            } else {
+                alert(res.message || "Erreur lors de l'upload");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erreur de connexion au serveur");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.file) return;
+        if (!formData.document) {
+            alert("Veuillez attendre la fin de l'upload du document");
+            return;
+        }
 
         setIsLoading(true);
         try {
-            const data = new FormData();
-            data.append("titre", formData.titre);
-            data.append("date", formData.date);
-            data.append("annee", anneeId);
-            data.append("file", formData.file);
+            const res = await addReport(etabId, {
+                ...formData,
+                annee: anneeId
+            });
 
-            const res = await addReport(etabId, data);
             if (res.success) {
-                setFormData({ titre: "", date: new Date().toISOString().split('T')[0], file: null });
+                setFormData({ titre: "", date: new Date().toISOString().split('T')[0], document: "" });
                 setIsAdding(false);
                 router.refresh();
             } else {
@@ -58,7 +84,7 @@ const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
             }
         } catch (error) {
             console.error(error);
-            alert("Une erreur est survenue lors de l'ajout du rapport");
+            alert("Une erreur est survenue lors de l'enregistrement");
         } finally {
             setIsLoading(false);
         }
@@ -79,7 +105,6 @@ const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
         }
     };
 
-    // Filtrer les rapports pour l'année en cours
     const currentRapports = rapports.filter(r => {
         const rAnneeId = typeof r.annee === 'object' ? r.annee._id?.toString() : r.annee?.toString();
         return rAnneeId === anneeId;
@@ -107,7 +132,7 @@ const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                 {isAdding ? (
-                    <form onSubmit={handleAdd} className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <form onSubmit={handleSave} className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Titre du Rapport</label>
                             <input
@@ -138,40 +163,56 @@ const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Fichier (PDF, Docx)</label>
                             <div className="relative">
                                 <input
-                                    required
+                                    required={!formData.document}
                                     type="file"
                                     accept=".pdf,.docx,.doc"
                                     className="hidden"
                                     id="report-file"
-                                    onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] || null })}
+                                    onChange={handleFileUpload}
+                                    disabled={isUploading || !!formData.document}
                                 />
                                 <label
                                     htmlFor="report-file"
-                                    className="w-full px-4 py-4 bg-blue-50/50 dark:bg-blue-900/10 border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+                                    className={`w-full px-4 py-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all group ${formData.document
+                                            ? "bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-900/50"
+                                            : "bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                        }`}
                                 >
-                                    <FileIcon className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                                        {formData.file ? formData.file.name : "Cliquez pour choisir un fichier"}
-                                    </span>
+                                    {isUploading ? (
+                                        <div className="flex flex-col items-center">
+                                            <Spinner className="w-8 h-8 text-blue-500 mb-2" />
+                                            <span className="text-[10px] font-black text-blue-600 uppercase">Chargement sur Mega...</span>
+                                        </div>
+                                    ) : formData.document ? (
+                                        <div className="flex flex-col items-center">
+                                            <CheckCircleIcon className="w-8 h-8 text-green-500 mb-2" />
+                                            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Document prêt</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <FileIcon className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
+                                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">Cliquez pour charger sur Mega</span>
+                                        </>
+                                    )}
                                 </label>
                             </div>
                         </div>
 
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || isUploading || !formData.document}
                             className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl shadow-blue-500/25 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {isLoading ? <Spinner className="w-4 h-4" /> : "Enregistrer le Rapport"}
+                            {isLoading ? <Spinner className="w-4 h-4" /> : "Valider et Enregistrer"}
                         </button>
                     </form>
                 ) : (
                     <div className="space-y-3">
                         {currentRapports.length > 0 ? (
                             currentRapports.map((report) => (
-                                <div key={report._id} className="group bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800/50 rounded-3xl p-4 flex items-center justify-between hover:border-blue-200 dark:hover:border-blue-900/50 transition-all">
+                                <div key={report._id} className="group bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800/50 rounded-3xl p-4 flex items-center justify-between transition-all">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                        <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-blue-600">
                                             <FileIcon className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -179,19 +220,19 @@ const Rapports = ({ rapports = [], anneeId, etabId }: RapportsProps) => {
                                             <p className="text-[10px] text-gray-400 font-bold mt-0.5">{new Date(report.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                    <div className="flex items-center gap-2">
                                         <a
                                             href={report.document}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                            className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                             title="Télécharger"
                                         >
                                             <DownloadIcon className="w-4 h-4" />
                                         </a>
                                         <button
                                             onClick={() => handleDelete(report._id!)}
-                                            className="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                            className="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-sm"
                                             title="Supprimer"
                                         >
                                             <TrashBinIcon className="w-4 h-4" />

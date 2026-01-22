@@ -60,44 +60,42 @@ export async function deleteEtablissement(id: string) {
     }
 }
 
-export async function addReport(etabId: string, formData: FormData) {
+export async function uploadDocumentToServer(formData: FormData) {
     try {
-        await dbConnect();
-        const titre = formData.get("titre") as string;
-        const date = formData.get("date") as string;
-        const annee = formData.get("annee") as string;
         const file = formData.get("file") as File;
+        if (!file) throw new Error("Fichier manquant");
 
-        if (!file || !titre || !date || !annee) {
-            throw new Error("Toutes les informations sont requises");
-        }
-
-        // Sauvegarder temporellement le fichier
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const tempPath = path.join(os.tmpdir(), file.name);
         fs.writeFileSync(tempPath, buffer);
 
-        // Upload vers Mega
         const megaFile = await MegaService.upload(tempPath);
         const link = await MegaService.getLink(megaFile);
 
-        // Supprimer le fichier temp
         fs.unlinkSync(tempPath);
 
-        const newReport = {
-            titre,
-            date,
-            annee,
-            document: link
-        };
+        return { success: true, link };
+    } catch (error: any) {
+        console.error("Upload error:", error);
+        return { success: false, message: error.message };
+    }
+}
+
+export async function addReport(etabId: string, reportData: { titre: string, date: string, annee: string, document: string }) {
+    try {
+        await dbConnect();
+
+        if (!reportData.document || !reportData.titre || !reportData.date || !reportData.annee) {
+            throw new Error("Toutes les informations sont requises");
+        }
 
         await Etablissement.findByIdAndUpdate(etabId, {
-            $push: { rapports: newReport }
+            $push: { rapports: reportData }
         });
 
         revalidatePath("/(admin)/(coge)/dg/[slug]", "page");
-        return { success: true, message: "Rapport ajouté avec succès" };
+        return { success: true, message: "Rapport enregistré avec succès" };
 
     } catch (error: any) {
         console.error("Error adding report:", error);
