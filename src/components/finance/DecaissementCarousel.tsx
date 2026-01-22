@@ -396,8 +396,6 @@ export const DecaissementCarousel = ({ data }: { data: any }) => {
         }
     });
 
-    console.log("Detail decaissement : ", decaissements);
-
     return (
         <div className="rounded-[2.5rem] space-y-3 shadow-2xl shadow-gray-200/10 dark:shadow-none">
             <div className="flex items-center justify-between">

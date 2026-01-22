@@ -71,8 +71,6 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
                 },
             ];
 
-            console.log("parcours", parcours);
-
             return (
                 <FinanceDashboard
                     isLoading={false}
