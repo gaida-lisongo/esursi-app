@@ -1,4 +1,4 @@
-import React from "react";
+import React, { act } from "react";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
 import DemographicCard from "@/components/ecommerce/DemographicCard";
 import { Metrics } from "../ecommerce/Metrics";
@@ -7,7 +7,7 @@ import TargetChart from "../ecommerce/TargetChart";
 
 import { DecaissementCarousel } from "../finance/DecaissementCarousel";
 import Transactions from "../ecommerce/Transactions";
-import { isNull } from "util";
+import Rapports from "../ecommerce/Rapports";
 
 export interface Transaction {
     _id: string;
@@ -65,7 +65,10 @@ interface FinaceProps {
     };
     parcours: Parcours[];
     transactions: Transaction[];
+    rapports: any[];
     action?: string;
+    anneeId?: string;
+    etabId?: string;
 }
 
 export default function FinanceDashboard({
@@ -74,8 +77,12 @@ export default function FinanceDashboard({
     budget,
     parcours,
     transactions,
-    action
+    rapports,
+    action,
+    anneeId,
+    etabId
 }: FinaceProps) {
+    console.log("action", action);
 
     if (isLoading) {
         return (
@@ -107,10 +114,25 @@ export default function FinanceDashboard({
                     {parcours.length > 0 && <TargetChart data={parcours} />}
                 </div>
             </div>
-
-            <div className="col-span-12 ">
-                {transactions.length > 0 && <Transactions data={transactions} />}
-            </div>
+            {
+                action == "DG" ?
+                    (
+                        <div className="col-span-12 flex flex-col lg:flex-row gap-3">
+                            <div className="lg:w-2/3 space-y-3">
+                                {transactions.length > 0 && <Transactions data={transactions} />}
+                            </div>
+                            <div className="lg:w-1/3">
+                                <Rapports rapports={rapports} anneeId={anneeId || ""} etabId={etabId || ""} />
+                            </div>
+                        </div>
+                    )
+                    :
+                    (
+                        <div className="col-span-12 ">
+                            {transactions.length > 0 && <Transactions data={transactions} />}
+                        </div>
+                    )
+            }
         </div>
     );
 }

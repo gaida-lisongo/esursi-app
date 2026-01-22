@@ -5,7 +5,6 @@ import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon } from "@/icons";
 import { Metrique } from "../etablissement/Dashboard";
 
 export const Metrics = ({ data }: { data: Metrique[] }) => {
-  console.log("Stat Paiement : ", data);
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
       {

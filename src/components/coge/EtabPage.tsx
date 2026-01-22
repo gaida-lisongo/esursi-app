@@ -7,10 +7,13 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
 
     try {
         const annee = await Annee.findById(anneeId);
-        const etab = await Etablissement.findById(etabId)
+        const rawEtab = await Etablissement.findById(etabId)
             .populate("province")
             .populate("coge.agent")
-            .populate("rapports.annee");
+            .populate("rapports.annee")
+            .lean();
+
+        const etab = JSON.parse(JSON.stringify(rawEtab));
 
         const transaction: { _id: any; annee: string; actif: boolean; data: any[] } = {
             _id: annee?._id?.toString(),
@@ -79,7 +82,9 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
                     budget={budget}
                     transactions={[transaction]}
                     action={role}
-
+                    rapports={etab?.rapports || []}
+                    anneeId={anneeId}
+                    etabId={etabId}
                 />
             )
         }

@@ -202,7 +202,6 @@ export async function getBudgetsByAnneeEtab(anneeId: string, etablissementId: st
         if (!budget) return { success: false, message: "Budget non trouvé" };
 
         const items = await PlanHebdo.find({ budget: budget._id } as any)
-            .populate("budget")
             .populate("lignes")
             .populate("ordres")
             .populate("ordres.ligne")

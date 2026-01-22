@@ -23,6 +23,7 @@
     "autoprefixer": "^10.4.22",
     "flatpickr": "^4.6.13",
     "jsonwebtoken": "^9.0.3",
+    "megajs": "^1.3.9",
     "mongoose": "^9.1.3",
     "next": "16.0.10",
     "nodemailer": "^7.0.12",

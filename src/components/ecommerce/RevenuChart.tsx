@@ -14,7 +14,6 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function RevenuChart({
   data
 }: { data: any }) {
-  console.log("Data Chart: ", data);
 
   const options: ApexOptions = {
     colors: ["#3b82f6", "#60a5fa"],
