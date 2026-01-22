@@ -8,6 +8,7 @@ import TargetChart from "../ecommerce/TargetChart";
 import { DecaissementCarousel } from "../finance/DecaissementCarousel";
 import Transactions from "../ecommerce/Transactions";
 import Rapports from "../ecommerce/Rapports";
+import AgentsPage from "@/app/(admin)/(personnel)/agents/page";
 
 export interface Transaction {
     _id: string;
@@ -126,12 +127,34 @@ export default function FinanceDashboard({
                             </div>
                         </div>
                     )
-                    :
-                    (
-                        <div className="col-span-12 ">
-                            {transactions.length > 0 && <Transactions data={transactions} />}
-                        </div>
-                    )
+                    : action == "SGACAD" ?
+                        (
+                            <div className="col-span-12 flex flex-col lg:flex-row gap-3">
+                                <div className="lg:w-2/3 space-y-3">
+                                    {transactions.length > 0 && <Transactions data={transactions} />}
+                                </div>
+                                <div className="lg:w-1/3">
+                                    <AgentsPage personnel={"PAS"} etabId={etabId} anneeId={anneeId} />
+                                </div>
+                            </div>
+                        )
+                        : action == "SGAD" || action == "SGADMIN" ?
+                            (
+                                <div className="col-span-12 flex flex-col lg:flex-row gap-3">
+                                    <div className="lg:w-2/3 space-y-3">
+                                        {transactions.length > 0 && <Transactions data={transactions} />}
+                                    </div>
+                                    <div className="lg:w-1/3">
+                                        <AgentsPage personnel={"PATO"} etabId={etabId} anneeId={anneeId} />
+                                    </div>
+                                </div>
+                            )
+                            :
+                            (
+                                <div className="col-span-12 ">
+                                    {transactions.length > 0 && <Transactions data={transactions} />}
+                                </div>
+                            )
             }
         </div>
     );

@@ -5,6 +5,7 @@ export interface IAgent extends Document {
     postNom: string;
     prenom: string;
     dateNaissance: Date;
+    lieuNaissance: string;
     nationalite: string;
     sexe: string;
     adresse: string;
@@ -28,6 +29,7 @@ const AgentSchema: Schema = new Schema({
     postNom: { type: String, required: true },
     prenom: { type: String, required: true },
     dateNaissance: { type: Date, required: true },
+    lieuNaissance: { type: String, required: true },
     nationalite: { type: String, required: true },
     sexe: { type: String, required: true },
     adresse: { type: String, required: true },

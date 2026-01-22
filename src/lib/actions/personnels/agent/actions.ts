@@ -7,6 +7,7 @@ import Grade from "@/lib/models/Grade";
 import { revalidatePath } from "next/cache";
 import Admin from "@/lib/models/Admin";
 import crypto from "crypto";
+import { Affectation } from "@/lib/models";
 
 // Utility to generate matricule
 function generateMatricule() {
@@ -57,7 +58,7 @@ export async function createAgent(formData: any) {
         await agent.save();
 
         revalidatePath("/(admin)/(personnel)/agents");
-        return { success: true, message: "Agent créé avec succès" };
+        return { success: true, message: "Agent créé avec succès", data: JSON.parse(JSON.stringify(agent)) };
     } catch (error: any) {
         return { success: false, message: error.message || "Erreur lors de la création de l'agent" };
     }
@@ -179,5 +180,45 @@ export async function getAdmins() {
         };
     } catch (error: any) {
         return { success: false, message: error.message || "Erreur lors du chargement des admins" };
+    }
+}
+
+export async function getAffectations(etablissementId: string, anneeId: string) {
+    try {
+        await dbConnect();
+        const affectations = await Affectation.find({ etablissement: etablissementId } as any)
+            .populate({
+                path: "agent",
+                populate: {
+                    path: "grade",
+                },
+            })
+            .populate("etablissement")
+            .populate("annee")
+            .lean();
+
+        console.log("Liste agent affected : ", affectations);
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(affectations)).map((a: any) => ({
+                ...a,
+                id: a._id.toString(),
+            })),
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors du chargement des affectations" };
+    }
+}
+
+export async function createAffectation(formData: any) {
+    try {
+        await dbConnect();
+        const affectation = new Affectation(formData);
+        await affectation.save();
+        revalidatePath("/(admin)/(personnel)/agents");
+        return { success: true, message: "Affectation créée avec succès" };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Erreur lors de la création de l'affectation" };
     }
 }

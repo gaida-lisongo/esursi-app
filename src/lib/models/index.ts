@@ -8,10 +8,12 @@ import { Etudiant, DossierEtudiant, Parcours } from './Etudiant';
 import { Ligne, Budget, PlanHebdo, Ordre } from './Depense';
 import { Tranche, Paiement } from './Recette';
 import { Programme, Cycle, Domaine } from './Programme';
+import Affectation from './Affectation';
 
 export {
     Annee,
     Activite,
+    Affectation,
     Etablissement,
     Faculte,
     Agent,
