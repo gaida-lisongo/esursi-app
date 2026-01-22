@@ -150,7 +150,7 @@ export default function AgentsPage({ personnel = "", searchParams, etabId, annee
                                         }
                                         return agentRes;
                                     } else { // 'update'
-                                        const res = await updateAgent(modal.agent.id, data);
+                                        const res = await updateAgent(modal.agent._id, data);
                                         if (res.success) loadData();
                                         return res;
                                     }

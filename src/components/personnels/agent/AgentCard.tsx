@@ -68,7 +68,7 @@ export const AgentCard = ({ agent, onUpdate, onDelete, onManageAuth }: AgentCard
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1">
                 <button
                     onClick={() => onManageAuth(agent)}
                     className="p-1.5 text-gray-500 transition-colors hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"

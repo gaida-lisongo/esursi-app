@@ -65,9 +65,10 @@ export async function createAgent(formData: any) {
 }
 
 export async function updateAgent(agentId: string, formData: any) {
+    const id = agentId || formData._id;
     try {
         await dbConnect();
-        const agent = await Agent.findById(agentId);
+        const agent = await Agent.findById(id);
         if (!agent) return { success: false, message: "Agent non trouvé" };
 
         Object.assign(agent, formData);

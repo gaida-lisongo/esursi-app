@@ -181,6 +181,11 @@ export const AgentForm = ({ agent, grades, provinces, onClose, onSubmit }: Agent
                                 <div className="space-y-1">
                                     <label className="text-xs font-bold text-gray-500 uppercase">Photo (Optionnel)</label>
                                     <input type="file" name="photo" onChange={handlePhotoChange} className="w-full p-2 border rounded-xl dark:bg-gray-700 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                    {(photoFile || formData.photo) && (
+                                        <div className="mt-4">
+                                            <img src={photoFile ? URL.createObjectURL(photoFile) : formData.photo} alt="Aperçu" className="w-32 h-32 object-cover rounded-full mx-auto" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
