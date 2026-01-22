@@ -36,9 +36,10 @@ export default function SignInForm() {
       const result = await login(identifier, password);
       if (result.success) {
         setIsRedirecting(true);
+        // Redirection simple après succès
         setTimeout(() => {
           router.push("/");
-        }, 800);
+        }, 500);
       }
     } else {
       // Logic for recovery

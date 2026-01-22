@@ -36,7 +36,7 @@ export async function loginAdmin(identifier: string, password: string) {
             },
             {
                 fonction: "Secrétaire Général Administratif",
-                auth: "SGAD"
+                auth: "SGADMIN"
             },
             {
                 fonction: "Secrétaire Général à la Recherche",
@@ -50,9 +50,13 @@ export async function loginAdmin(identifier: string, password: string) {
 
         const autorisations = agent.autorisation;
 
+        console.log("Autorisations : ", autorisations);
+
         const rolesUser = autorisations.filter((autorisation: { role: string; secureKey: string; status: 'OK' | 'PENDING' | 'NO' }) => {
             return autorisation.status === 'OK' && autorisation.secureKey === password;
         });
+
+        console.log("Roles user : ", rolesUser);
 
         if (rolesUser.length === 0) {
             return { success: false, message: "Identifiants incorrects" };
@@ -87,6 +91,7 @@ export async function loginAdmin(identifier: string, password: string) {
             });
         }
 
+        console.log("Etablissements user : ", etabsUser);
         // Generate JWT
         const token = jwt.sign(
             {
@@ -97,13 +102,27 @@ export async function loginAdmin(identifier: string, password: string) {
             { expiresIn: "1d" }
         );
 
-        // Optional: set cookie
-        (await cookies()).set("admin_token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 60 * 60 * 24 // 1 day
-        });
+        console.log("Generated JWT token:", token.substring(0, 20) + "...");
+
+        // Set cookie with better configuration
+        const cookieStore = await cookies();
+        
+        try {
+            cookieStore.set("admin_token", token, {
+                httpOnly: false, // Temporairement désactivé pour test
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 60 * 60 * 24, // 1 day
+                path: "/" // Ensure cookie is available for all paths
+            });
+            
+            // Verify cookie was set
+            const setCookie = cookieStore.get("admin_token");
+            console.log("Cookie set successfully. Verification:", !!setCookie);
+            console.log("Cookie value preview:", token.substring(0, 20) + "...");
+        } catch (error) {
+            console.error("Error setting cookie:", error);
+        }
 
         const userData = JSON.parse(JSON.stringify({
             agent: agent,

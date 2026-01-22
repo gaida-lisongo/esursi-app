@@ -55,6 +55,8 @@ export const useAdminStore = create<AdminState>()(
                     if (result.success) {
                         const { token, user } = result?.data as { token: string; user: AdminUser }
                         const { agent, etabsUser } = user;
+                        
+                        // Mettre à jour l'état Zustand
                         set({
                             user: agent,
                             token: token,
@@ -62,6 +64,15 @@ export const useAdminStore = create<AdminState>()(
                             isAuthenticated: true,
                             isLoading: false,
                         });
+                        
+                        // Définir aussi un cookie côté client pour la synchronisation
+                        if (typeof window !== 'undefined') {
+                            document.cookie = `admin_token=${token}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
+                            console.log("Client-side cookie set");
+                        }
+                        
+                        console.log("Store updated successfully with user:", agent.nom);
+                        
                         return { success: true, message: result.message };
                     } else {
                         set({ isLoading: false, error: result.message });
@@ -76,6 +87,12 @@ export const useAdminStore = create<AdminState>()(
 
             logout: async () => {
                 await logoutAdmin();
+                
+                // Nettoyer aussi le cookie côté client
+                if (typeof window !== 'undefined') {
+                    document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                }
+                
                 set({
                     user: null,
                     token: null,

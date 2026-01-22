@@ -4,31 +4,23 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
     const token = request.cookies.get('admin_token')?.value;
     const { pathname } = request.nextUrl;
+    
+    // Log for debugging only - no redirection logic
+    const allCookies = request.cookies.getAll();
+    console.log('Middleware info:', { 
+        pathname, 
+        hasToken: !!token, 
+        cookieCount: allCookies.length 
+    });
 
-    // Paths that don't require authentication
-    const isAuthPage = pathname.startsWith('/signin') || pathname.startsWith('/signup') || pathname.startsWith('/reset-password');
-
-    // Static files and API routes (some APIs might need protection, but usually handled in the route itself or here)
+    // Static files and API routes
     const isPublicFile = pathname.includes('.') || pathname.startsWith('/_next');
 
     if (isPublicFile) {
         return NextResponse.next();
     }
 
-    if (!token && !isAuthPage) {
-        // If no token and not on an auth page, redirect to signin
-        const url = request.nextUrl.clone();
-        url.pathname = '/signin';
-        return NextResponse.redirect(url);
-    }
-
-    if (token && isAuthPage) {
-        // If already logged in and trying to access signin, redirect to home
-        const url = request.nextUrl.clone();
-        url.pathname = '/';
-        return NextResponse.redirect(url);
-    }
-
+    // Let all requests through - client-side protection will handle auth
     return NextResponse.next();
 }
 

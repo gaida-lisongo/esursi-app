@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
-// import Metrics from "@/components/ecommerce/Metrics";
 import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import AnneesPage from "./annees/page";
-import AgentsPage from "./(personnel)/agents/page";
 import DashboardData from "@/components/ecommerce/DashboardData";
-import { useAdminStore } from "@/store/useAdminStore";
 
 export const metadata: Metadata = {
   title: "Dashboard | ESURSI-APP",
