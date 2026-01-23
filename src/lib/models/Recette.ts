@@ -6,6 +6,24 @@ export interface ITranche extends Document {
     frais: Schema.Types.ObjectId;
     description?: string[];
 }
+
+export interface IInscription extends Document {
+    etablissement: Schema.Types.ObjectId;
+    annee: Schema.Types.ObjectId;
+    tranche: Schema.Types.ObjectId;
+    programme: Schema.Types.ObjectId;
+    description?: string[];
+    actif: boolean;
+}
+
+export interface IMinerval extends Document {
+    etablissement: Schema.Types.ObjectId;
+    annee: Schema.Types.ObjectId;
+    tranche: Schema.Types.ObjectId;
+    description?: string[];
+    actif: boolean;
+}
+
 export interface IPaiement extends Document {
     etudiant: Schema.Types.ObjectId;
     montant: number;
