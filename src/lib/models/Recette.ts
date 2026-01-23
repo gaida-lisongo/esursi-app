@@ -55,9 +55,36 @@ const PaiementSchema: Schema = new Schema({
     timestamps: true
 });
 
+const InscriptionSchema: Schema = new Schema({
+    etablissement: { type: Schema.Types.ObjectId, ref: 'Etablissement', required: true },
+    annee: { type: Schema.Types.ObjectId, ref: 'Annee', required: true },
+    tranche: { type: Schema.Types.ObjectId, ref: 'Tranche', required: true },
+    programme: { type: Schema.Types.ObjectId, ref: 'Programme', required: true },
+    description: [{ type: String }],
+    actif: { type: Boolean, default: true },
+}, {
+    timestamps: true
+});
+
+const MinervalSchema: Schema = new Schema({
+    etablissement: { type: Schema.Types.ObjectId, ref: 'Etablissement', required: true },
+    annee: { type: Schema.Types.ObjectId, ref: 'Annee', required: true },
+    tranche: { type: Schema.Types.ObjectId, ref: 'Tranche', required: true },
+    description: [{ type: String }],
+    actif: { type: Boolean, default: true },
+}, {
+    timestamps: true
+});
+
+const Minerval: Model<IMinerval> = mongoose.models.Minerval || mongoose.model<IMinerval>('Minerval', MinervalSchema);
+
+const Inscription: Model<IInscription> = mongoose.models.Inscription || mongoose.model<IInscription>('Inscription', InscriptionSchema);
+
 const Paiement: Model<IPaiement> = mongoose.models.Paiement || mongoose.model<IPaiement>('Paiement', PaiementSchema);
 
 export {
     Paiement,
-    Tranche
+    Tranche,
+    Inscription,
+    Minerval
 }
