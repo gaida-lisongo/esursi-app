@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Button from "@/components/ui/button/Button";
-import { AlertIcon as XMarkIcon, DownloadIcon } from "@/icons";
+import { XMarkIcon, DownloadIcon } from "@/icons";
 import { getParcoursByAnneeEtab } from "@/lib/actions/finance/fraisActions";
 import PDFGenerator from "./PDFGenerator";
 
@@ -107,7 +107,7 @@ export default function InscriptionDetailsModal({
                   <span className="font-medium">Tranche:</span> {inscription.tranche.designation}
                 </div>
                 <div>
-                  <span className="font-medium">Montant:</span> {inscription.tranche.montant.toLocaleString()} FC
+                  <span className="font-medium">Montant:</span> ${inscription.tranche.montant.toLocaleString()}
                 </div>
                 {inscription.description && (
                   <div>

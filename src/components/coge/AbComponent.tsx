@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PlusIcon, BellIcon as SearchIcon, EyeIcon, TrashBinIcon } from "@/icons";
+import { PlusIcon, BellIcon as SearchIcon, EyeIcon, TrashBinIcon, TaskIcon } from "@/icons";
 import Button from "@/components/ui/button/Button";
 import Input from "@/components/form/input/InputField";
 import CreateInscriptionModal from "@/components/finance/CreateInscriptionModal";
@@ -145,58 +145,76 @@ export default function AbComponent({ etabId, anneeId }: AbComponentProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-3">
           {activeTab === "inscriptions" ? (
             filteredInscriptions.length > 0 ? (
               filteredInscriptions.map((inscription) => (
                 <div
                   key={inscription._id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                      {inscription.programme.designation}
-                    </h4>
-                    <div className="flex gap-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                          {inscription.programme.designation}
+                        </h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Programme
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {inscription.tranche.designation}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Tranche
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-bold text-brand-600 dark:text-brand-400 text-lg">
+                          ${inscription.tranche.montant.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Montant
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {inscription.annee.debut} - {inscription.annee.fin}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Année académique
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => {
                           setSelectedInscription(inscription);
                           setShowInscriptionDetails(true);
                         }}
-                        className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+                        className="p-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-md transition-colors"
                         title="Voir détails"
                       >
                         <EyeIcon className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteInscription(inscription._id)}
-                        className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                         title="Supprimer"
                       >
-                        <TrashIcon className="w-4 h-4" />
+                        <TaskIcon className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   
-                  <div className="space-y-2 text-xs text-gray-600 dark:text-gray-300">
-                    <div className="flex justify-between">
-                      <span>Tranche:</span>
-                      <span className="font-medium">{inscription.tranche.designation}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Montant:</span>
-                      <span className="font-medium text-brand-600 dark:text-brand-400">
-                        {inscription.tranche.montant.toLocaleString()} FC
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Année:</span>
-                      <span>{inscription.annee.debut} - {inscription.annee.fin}</span>
-                    </div>
-                  </div>
-                  
                   {inscription.description && inscription.description.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
                       <p className="text-xs text-gray-500 dark:text-gray-400 italic">
                         {inscription.description.join(", ")}
                       </p>
@@ -214,26 +232,61 @@ export default function AbComponent({ etabId, anneeId }: AbComponentProps) {
               filteredMinervals.map((minerval) => (
                 <div
                   key={minerval._id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                      {minerval.tranche.designation}
-                    </h4>
-                    <div className="flex gap-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                          {minerval.tranche.designation}
+                        </h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Tranche Minerval
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {minerval.etablissement.designation}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Établissement
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-bold text-brand-600 dark:text-brand-400 text-lg">
+                          ${minerval.tranche.montant.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Montant
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                          {minerval.annee.debut} - {minerval.annee.fin}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Année académique
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => {
                           setSelectedMinerval(minerval);
                           setShowMinervalDetails(true);
                         }}
-                        className="p-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+                        className="p-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-md transition-colors"
                         title="Voir détails"
                       >
                         <EyeIcon className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteMinerval(minerval._id)}
-                        className="p-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                         title="Supprimer"
                       >
                         <TrashBinIcon className="w-4 h-4" />
@@ -241,25 +294,8 @@ export default function AbComponent({ etabId, anneeId }: AbComponentProps) {
                     </div>
                   </div>
                   
-                  <div className="space-y-2 text-xs text-gray-600 dark:text-gray-300">
-                    <div className="flex justify-between">
-                      <span>Établissement:</span>
-                      <span className="font-medium">{minerval.etablissement.designation}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Montant:</span>
-                      <span className="font-medium text-brand-600 dark:text-brand-400">
-                        {minerval.tranche.montant.toLocaleString()} FC
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Année:</span>
-                      <span>{minerval.annee.debut} - {minerval.annee.fin}</span>
-                    </div>
-                  </div>
-                  
                   {minerval.description && minerval.description.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
                       <p className="text-xs text-gray-500 dark:text-gray-400 italic">
                         {minerval.description.join(", ")}
                       </p>

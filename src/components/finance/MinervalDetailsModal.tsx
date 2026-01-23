@@ -120,7 +120,7 @@ export default function MinervalDetailsModal({
                   <span className="font-medium">Tranche:</span> {minerval.tranche.designation}
                 </div>
                 <div>
-                  <span className="font-medium">Montant:</span> {minerval.tranche.montant.toLocaleString()} FC
+                  <span className="font-medium">Montant:</span> ${minerval.tranche.montant.toLocaleString()}
                 </div>
                 {minerval.description && (
                   <div>
@@ -154,7 +154,7 @@ export default function MinervalDetailsModal({
                           </span>
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                          <div>Montant: {paiement.montant.toLocaleString()} FC</div>
+                          <div>Montant: ${paiement.montant.toLocaleString()}</div>
                           <div>N° Commande: {paiement.orderNumber}</div>
                         </div>
                       </div>

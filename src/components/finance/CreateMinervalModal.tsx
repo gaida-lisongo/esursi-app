@@ -101,7 +101,7 @@ export default function CreateMinervalModal({
               <option value="">Sélectionner une tranche</option>
               {tranches.map((tranche) => (
                 <option key={tranche._id} value={tranche._id}>
-                  {tranche.designation} - {tranche.montant} FC
+                  {tranche.designation} - ${tranche.montant}
                 </option>
               ))}
             </select>

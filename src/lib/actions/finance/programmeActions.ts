@@ -10,7 +10,14 @@ export async function getProgrammesByEtablissement(etabId: string) {
         
         // Trouver les mentions liées à cet établissement
         const mentions = await Mention.find({ etablissement: etabId?.toString() })
-            .populate("domaine")
+            .populate({
+                path: "domaine",
+                model: "Domaine",
+                populate: {
+                    path: "cycle",
+                    model: "Cycle"
+                }
+            })
             .lean();
 
         if (!mentions || mentions.length === 0) {
@@ -20,42 +27,34 @@ export async function getProgrammesByEtablissement(etabId: string) {
             };
         }
 
-        // Trouver les facultés qui ont ces mentions
-        const facultes = await Faculte.find({
-            mention: { $in: mentions.map((m) => m._id) }
-        })
-        .populate({
-            path: "programmes",
-            model: "Programme",
-            populate: {
+        // Trouver les programmes qui sont dans les cycles des mentions trouvées
+        const cycleIds = mentions.map(mention => mention.domaine.cycle._id);
+        const programmes = await Programme.find({ cycle: { $in: cycleIds } })
+            .populate({
                 path: "cycle",
                 model: "Cycle"
-            }
-        })
-        .populate({
-            path: "mention",
-            model: "Mention",
-            populate: {
-                path: "domaine",
-                model: "Domaine"
-            }
-        })
-        .populate({
-            path: "equipe.agent",
-            model: "Agent"
-        })
-        .lean();
+            })
+            .lean();
 
-        if (!facultes || facultes.length === 0) {
+        // Enrichir les programmes avec les informations des mentions et domaines
+        const enrichedProgrammes = programmes.map(programme => {
+            const relatedMention = mentions.find(mention => 
+                mention.domaine.cycle._id.toString() === programme.cycle._id.toString()
+            );
+            
             return {
-                success: true,
-                data: []
+                ...programme,
+                mention: relatedMention ? {
+                    _id: relatedMention._id,
+                    designation: relatedMention.designation,
+                    domaine: relatedMention.domaine
+                } : null
             };
-        }
-
+        });
+  
         return {
             success: true,
-            data: JSON.parse(JSON.stringify(facultes))
+            data: JSON.parse(JSON.stringify(enrichedProgrammes))
         };
     } catch (error: any) {
         console.error("Erreur getProgrammesByEtablissement:", error);

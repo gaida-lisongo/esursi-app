@@ -139,7 +139,7 @@ export default function InscriptionConfigStep({
               <option value="">Sélectionner une tranche</option>
               {tranches.map((tranche) => (
                 <option key={tranche._id} value={tranche._id}>
-                  {tranche.designation} - {tranche.montant?.toLocaleString()} FC
+                  {tranche.designation} - ${tranche.montant?.toLocaleString()}
                   {tranche.frais?.designation && ` (${tranche.frais.designation})`}
                 </option>
               ))}

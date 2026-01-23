@@ -16,30 +16,37 @@ export default function ProgrammeSelectionStep({
   onClose,
   etabId
 }: ProgrammeSelectionStepProps) {
-  const [facultes, setFacultes] = useState<any[]>([]);
-  const [selectedFaculte, setSelectedFaculte] = useState<string>("");
+  const [programmes, setProgrammes] = useState<any[]>([]);
   const [selectedProgramme, setSelectedProgramme] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchFacultes();
+    fetchProgrammes();
   }, [etabId]);
 
-  const fetchFacultes = async () => {
+  const fetchProgrammes = async () => {
     try {
       const response = await getProgrammesByEtablissement(etabId);
       if (response.success) {
-        setFacultes(response.data);
+        setProgrammes(response.data);
       }
     } catch (error) {
-      console.error("Erreur lors du chargement des facultés:", error);
+      console.error("Erreur lors du chargement des programmes:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleProgrammeSelect = (programme: any, faculte: any) => {
-    setSelectedProgramme({ ...programme, faculte });
+  const filteredProgrammes = programmes.filter(programme =>
+    programme.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    programme.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    programme.mention?.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    programme.mention?.domaine?.designation?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleProgrammeSelect = (programme: any) => {
+    setSelectedProgramme(programme);
   };
 
   const handleNext = () => {
@@ -76,83 +83,79 @@ export default function ProgrammeSelectionStep({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Liste des facultés */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-4">
-              Facultés disponibles
-            </h4>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {facultes.map((faculte) => (
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher un programme, mention ou domaine..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+        </div>
+
+        <div className="max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-1 gap-3">
+            {filteredProgrammes.length > 0 ? (
+              filteredProgrammes.map((programme) => (
                 <div
-                  key={faculte._id}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    selectedFaculte === faculte._id
+                  key={programme._id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    selectedProgramme?._id === programme._id
                       ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
                       : "border-gray-300 dark:border-gray-600 hover:border-gray-400"
                   }`}
-                  onClick={() => setSelectedFaculte(faculte._id)}
+                  onClick={() => handleProgrammeSelect(programme)}
                 >
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {faculte.designation}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
-                    {faculte.mention?.domaine?.designation && (
-                      <div>Domaine: {faculte.mention.domaine.designation}</div>
-                    )}
-                    <div>{faculte.programmes?.length || 0} programme(s)</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Liste des programmes */}
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-4">
-              Programmes
-            </h4>
-            {selectedFaculte ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {facultes
-                  .find(f => f._id === selectedFaculte)
-                  ?.programmes?.map((programme: any) => (
-                    <div
-                      key={programme._id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        selectedProgramme?._id === programme._id
-                          ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
-                          : "border-gray-300 dark:border-gray-600 hover:border-gray-400"
-                      }`}
-                      onClick={() => handleProgrammeSelect(
-                        programme, 
-                        facultes.find(f => f._id === selectedFaculte)
-                      )}
-                    >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
                       <div className="font-medium text-gray-900 dark:text-white">
                         {programme.designation}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        <div>Cycle: {programme.cycle?.designation || 'Non spécifié'}</div>
-                        <div>Crédits: {programme.credits || 'Non spécifié'}</div>
-                        {programme.code && <div>Code: {programme.code}</div>}
+                      {programme.code && (
+                        <div className="text-sm font-mono text-gray-600 dark:text-gray-300">
+                          Code: {programme.code}
+                        </div>
+                      )}
+                      
+                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <div>
+                          <span className="font-medium">Cycle:</span> {programme.cycle?.designation || 'Non spécifié'}
+                        </div>
+                        <div>
+                          <span className="font-medium">Crédits:</span> {programme.credits || 'Non spécifié'}
+                        </div>
+                        {programme.mention && (
+                          <>
+                            <div>
+                              <span className="font-medium">Mention:</span> {programme.mention.designation}
+                            </div>
+                            <div>
+                              <span className="font-medium">Domaine:</span> {programme.mention.domaine?.designation || 'Non spécifié'}
+                            </div>
+                          </>
+                        )}
                       </div>
+                      
                       {programme.description && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                           {programme.description}
                         </div>
                       )}
-                      {programme.equipe && programme.equipe.length > 0 && (
-                        <div className="text-xs text-gray-400 mt-1">
-                          {programme.equipe.length} membre(s) d'équipe
-                        </div>
+                    </div>
+                    
+                    <div className="ml-4 flex items-center">
+                      {selectedProgramme?._id === programme._id && (
+                        <div className="w-2 h-2 bg-brand-500 rounded-full"></div>
                       )}
                     </div>
-                  )) || []}
-              </div>
+                  </div>
+                </div>
+              ))
             ) : (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Sélectionnez une faculté pour voir les programmes
+                {searchTerm ? "Aucun programme trouvé" : "Aucun programme disponible"}
               </div>
             )}
           </div>
