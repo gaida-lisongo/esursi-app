@@ -43,7 +43,7 @@ export async function loginAdmin(identifier: string, password: string) {
                 auth: "SGR"
             },
             {
-                fonction: "Administrateur du Budget",
+                fonction: "Administrateur de Budget",
                 auth: "AB"
             }
         ]
@@ -84,9 +84,11 @@ export async function loginAdmin(identifier: string, password: string) {
                 "coge.fonction": profile.fonction
             }).lean();
 
+            console.log("Etablisement : ", etablissements);
+
             etabsUser.push({
                 etablissements: etablissements,
-                fonction: profile.fonction,
+                fonction: profile.fonction == 'Administrateur de Budget' ? 'Administrateur du Budget' : `${profile.fonction}`,
                 auth: profile.auth
             });
         }
