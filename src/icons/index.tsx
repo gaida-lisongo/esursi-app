@@ -52,6 +52,19 @@ import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
 
+const XMarkIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    strokeWidth={1.5} 
+    stroke="currentColor"
+    {...props}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
 export {
   DownloadIcon,
   BellIcon,
@@ -106,4 +119,5 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  XMarkIcon,
 };

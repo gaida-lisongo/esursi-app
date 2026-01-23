@@ -71,6 +71,7 @@ interface FinaceProps {
     action?: string;
     anneeId?: string;
     etabId?: string;
+    programmes?: any[];
 }
 
 export default function FinanceDashboard({
@@ -82,7 +83,8 @@ export default function FinanceDashboard({
     rapports,
     action,
     anneeId,
-    etabId
+    etabId,
+    programmes
 }: FinaceProps) {
     console.log("action", action);
 

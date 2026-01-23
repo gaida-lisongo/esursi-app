@@ -85,6 +85,7 @@ const EtabPage = async ({ etabId, anneeId, role }: { etabId: string, anneeId: st
                     rapports={etab?.rapports || []}
                     anneeId={anneeId}
                     etabId={etabId}
+                    programmes={etab?.programmes || []}
                 />
             )
         }
