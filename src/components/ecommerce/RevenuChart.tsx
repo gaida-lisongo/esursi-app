@@ -14,6 +14,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function RevenuChart({
   data
 }: { data: any }) {
+  console.log("RevenuChart data:", data);
 
   const options: ApexOptions = {
     colors: ["#3b82f6", "#60a5fa"],
@@ -157,12 +158,23 @@ export default function RevenuChart({
       </div>
 
       <div className="w-full">
+      {
+        data?.details?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-100 dark:border-blue-900/20 rounded-full animate-spin border-t-blue-600 dark:border-t-blue-400"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Aucune donnée disponible</p>
+        </div>
+
+        ) 
+        : (
         <ReactApexChart
           options={options}
           series={series}
           type="bar"
           height={280}
         />
+        )
+      }
       </div>
     </div>
   );

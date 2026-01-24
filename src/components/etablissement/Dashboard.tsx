@@ -10,6 +10,7 @@ import Transactions from "../ecommerce/Transactions";
 import Rapports from "../ecommerce/Rapports";
 import AgentsPage from "@/app/(admin)/(personnel)/agents/page";
 import AbComponent from "../coge/AbComponent";
+import FormBudget from "../ecommerce/FormBudget";
 
 export interface Transaction {
     _id: string;
@@ -86,8 +87,6 @@ export default function FinanceDashboard({
     etabId,
     programmes
 }: FinaceProps) {
-    console.log("action", action);
-
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
@@ -111,7 +110,7 @@ export default function FinanceDashboard({
 
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
                 <div className="lg:w-2/3 space-y-3">
-                    {budget && <RevenuChart data={budget} />}
+                    {budget ? <RevenuChart data={budget} /> : <FormBudget anneeId={anneeId} etabId={etabId} />}
                     {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={{ ...budget, userRole: action }} />}
                 </div>
                 <div className="lg:w-1/3">
