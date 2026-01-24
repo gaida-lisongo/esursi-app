@@ -151,75 +151,121 @@ export default function AbComponent({ etabId, anneeId }: AbComponentProps) {
               filteredInscriptions.map((inscription) => (
                 <div
                   key={inscription._id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-4">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                        <h3 className="text-lg font-bold text-white">
                           {inscription.programme.designation}
-                        </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Programme
+                        </h3>
+                        <p className="text-brand-100 text-sm">
+                          Programme d'inscription
                         </p>
                       </div>
-                      
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
-                          {inscription.tranche.designation}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Tranche
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <p className="font-bold text-brand-600 dark:text-brand-400 text-lg">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white">
                           ${inscription.tranche.montant.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Montant
-                        </p>
+                        </div>
+                        <p className="text-brand-100 text-sm">Montant à payer</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-brand-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {inscription.tranche.designation}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Tranche de paiement</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {inscription.annee.debut} - {inscription.annee.fin}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Année académique</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
-                          {inscription.annee.debut} - {inscription.annee.fin}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Année académique
-                        </p>
+                      <div className="space-y-3">
+                        {inscription.programme.cycle && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {inscription.programme.cycle.designation}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Cycle d'études</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {inscription.programme.code && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {inscription.programme.code}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Code programme</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => {
-                          setSelectedInscription(inscription);
-                          setShowInscriptionDetails(true);
-                        }}
-                        className="p-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-md transition-colors"
-                        title="Voir détails"
-                      >
-                        <EyeIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteInscription(inscription._id)}
-                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                        title="Supprimer"
-                      >
-                        <TaskIcon className="w-4 h-4" />
-                      </button>
+                    {inscription.description && inscription.description.length > 0 && (
+                      <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Description:</span> {inscription.description.join(", ")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          ID: {inscription._id.slice(-8)}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedInscription(inscription);
+                            setShowInscriptionDetails(true);
+                          }}
+                          className="px-4 py-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors font-medium text-sm"
+                          title="Voir détails"
+                        >
+                          <EyeIcon className="w-4 h-4 inline mr-1" />
+                          Détails
+                        </button>
+                        <button
+                          onClick={() => handleDeleteInscription(inscription._id)}
+                          className="px-4 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium text-sm"
+                          title="Supprimer"
+                        >
+                          <TaskIcon className="w-4 h-4 inline mr-1" />
+                          Supprimer
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  
-                  {inscription.description && inscription.description.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                        {inscription.description.join(", ")}
-                      </p>
-                    </div>
-                  )}
                 </div>
               ))
             ) : (
@@ -232,75 +278,119 @@ export default function AbComponent({ etabId, anneeId }: AbComponentProps) {
               filteredMinervals.map((minerval) => (
                 <div
                   key={minerval._id}
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                        <h3 className="text-lg font-bold text-white">
                           {minerval.tranche.designation}
-                        </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Tranche Minerval
+                        </h3>
+                        <p className="text-emerald-100 text-sm">
+                          Minerval académique
                         </p>
                       </div>
-                      
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
-                          {minerval.etablissement.designation}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Établissement
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <p className="font-bold text-brand-600 dark:text-brand-400 text-lg">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white">
                           ${minerval.tranche.montant.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Montant
-                        </p>
+                        </div>
+                        <p className="text-emerald-100 text-sm">Montant à payer</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {minerval.etablissement.designation}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Établissement</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {minerval.annee.debut} - {minerval.annee.fin}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Année académique</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
-                          {minerval.annee.debut} - {minerval.annee.fin}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Année académique
-                        </p>
+                      <div className="space-y-3">
+                        {minerval.etablissement.sigle && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {minerval.etablissement.sigle}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sigle établissement</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              Minerval
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Type de paiement</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => {
-                          setSelectedMinerval(minerval);
-                          setShowMinervalDetails(true);
-                        }}
-                        className="p-2 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-md transition-colors"
-                        title="Voir détails"
-                      >
-                        <EyeIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMinerval(minerval._id)}
-                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                        title="Supprimer"
-                      >
-                        <TrashBinIcon className="w-4 h-4" />
-                      </button>
+                    {minerval.description && minerval.description.length > 0 && (
+                      <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Description:</span> {minerval.description.join(", ")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          ID: {minerval._id.slice(-8)}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedMinerval(minerval);
+                            setShowMinervalDetails(true);
+                          }}
+                          className="px-4 py-2 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors font-medium text-sm"
+                          title="Voir détails"
+                        >
+                          <EyeIcon className="w-4 h-4 inline mr-1" />
+                          Détails
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMinerval(minerval._id)}
+                          className="px-4 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium text-sm"
+                          title="Supprimer"
+                        >
+                          <TrashBinIcon className="w-4 h-4 inline mr-1" />
+                          Supprimer
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  
-                  {minerval.description && minerval.description.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                        {minerval.description.join(", ")}
-                      </p>
-                    </div>
-                  )}
                 </div>
               ))
             ) : (
