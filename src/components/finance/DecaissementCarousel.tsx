@@ -35,6 +35,9 @@ export const DecaissementCarousel = ({ data, onRefresh }: { data: any, onRefresh
         // Appel du refresh pour mettre à jour les données
         if (onRefresh) {
             onRefresh();
+        } else if (data?.onRefresh) {
+            // Utiliser la fonction de refresh passée dans les data
+            data.onRefresh();
         }
     };
 
@@ -42,6 +45,9 @@ export const DecaissementCarousel = ({ data, onRefresh }: { data: any, onRefresh
         // Appel du refresh après suppression
         if (onRefresh) {
             onRefresh();
+        } else if (data?.onRefresh) {
+            // Utiliser la fonction de refresh passée dans les data
+            data.onRefresh();
         }
     };
 

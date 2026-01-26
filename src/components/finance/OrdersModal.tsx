@@ -6,7 +6,7 @@ import { CloseIcon, PlusIcon, DollarLineIcon, TrashBinIcon, CheckLineIcon, Close
 import Badge from "../ui/badge/Badge";
 import { Ordre } from "./DecaissementCarousel";
 
-const OrdersModal = ({ orders, title, onClose, planId, allLignes, role }: { orders: Ordre[]; title: string; onClose: () => void, planId: string, allLignes: any[], role?: string }) => {
+const OrdersModal = ({ orders, title, onClose, planId, allLignes, role, onUpdate }: { orders: Ordre[]; title: string; onClose: () => void, planId: string, allLignes: any[], role?: string, onUpdate?: () => void }) => {
     const router = useRouter();
     const [isAdding, setIsAdding] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,11 @@ const OrdersModal = ({ orders, title, onClose, planId, allLignes, role }: { orde
             if (res.success) {
                 setIsAdding(false);
                 setFormData({ beneficiaire: "", montant: "", description: "", ligne: allLignes?.[0]?._id || "" });
-                router.refresh();
+                if (onUpdate) {
+                    onUpdate();
+                } else {
+                    router.refresh();
+                }
             }
         } catch (error) {
             console.error("Error creating ordre : ", error);
@@ -52,7 +56,13 @@ const OrdersModal = ({ orders, title, onClose, planId, allLignes, role }: { orde
         try {
             const req = await fetch(`/api/depenses/ordres/${id}`, { method: 'DELETE' });
             const res = await req.json();
-            if (res.success) router.refresh();
+            if (res.success) {
+                if (onUpdate) {
+                    onUpdate();
+                } else {
+                    router.refresh();
+                }
+            }
         } catch (error) {
             console.error("Error deleting ordre : ", error);
         }
@@ -66,7 +76,13 @@ const OrdersModal = ({ orders, title, onClose, planId, allLignes, role }: { orde
                 body: JSON.stringify({ status })
             });
             const res = await req.json();
-            if (res.success) router.refresh();
+            if (res.success) {
+                if (onUpdate) {
+                    onUpdate();
+                } else {
+                    router.refresh();
+                }
+            }
         } catch (error) {
             console.error("Error updating status : ", error);
         }

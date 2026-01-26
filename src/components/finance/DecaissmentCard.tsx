@@ -106,6 +106,7 @@ const DecaissementCard = ({ item, onDeleted }: { item: any, onDeleted?: () => vo
                     allLignes={item.lignes}
                     role={item.role}
                     onClose={() => setIsOrdersOpen(false)}
+                    onUpdate={onDeleted}
                 />
             )}
         </>
