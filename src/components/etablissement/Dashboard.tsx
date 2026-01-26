@@ -11,6 +11,7 @@ import Rapports from "../ecommerce/Rapports";
 import AgentsPage from "@/app/(admin)/(personnel)/agents/page";
 import AbComponent from "../coge/AbComponent";
 import FormBudget from "../ecommerce/FormBudget";
+import FormDecaissement from "../ecommerce/FormDecaissement";
 
 export interface Transaction {
     _id: string;
@@ -43,29 +44,31 @@ export interface Metrique {
     status: 'up' | 'down';
 }
 
+export interface Budget {
+    annee: string;
+    montant: number;
+    designation: string;
+    details: {
+        ligne: string;
+        credit: number;
+    }[];
+    planHebdo: {
+        designation: string;
+        montant: number;
+        lignes: string[];
+        ordres: {
+            ligne: string;
+            beneficiaire: string;
+            montant: number;
+            status: 'OK' | 'PENDING' | 'NO'
+        }[];
+    }[]
+};
+
 interface FinaceProps {
     isLoading?: boolean;
     metriques: Metrique[];
-    budget?: {
-        annee: string;
-        montant: number;
-        designation: string;
-        details: {
-            ligne: string;
-            credit: number;
-        }[];
-        planHebdo: {
-            designation: string;
-            montant: number;
-            lignes: string[];
-            ordres: {
-                ligne: string;
-                beneficiaire: string;
-                montant: number;
-                status: 'OK' | 'PENDING' | 'NO'
-            }[];
-        }[]
-    };
+    budget?: Budget;
     parcours: Parcours[];
     transactions: Transaction[];
     rapports: any[];
@@ -111,7 +114,7 @@ export default function FinanceDashboard({
             <div className="col-span-12 flex flex-col lg:flex-row gap-3">
                 <div className="lg:w-2/3 space-y-3">
                     {budget ? <RevenuChart data={budget} /> : <FormBudget anneeId={anneeId} etabId={etabId} />}
-                    {budget?.planHebdo && budget.planHebdo.length > 0 && <DecaissementCarousel data={{ ...budget, userRole: action }} />}
+                    {budget && <DecaissementCarousel data={{ ...budget, userRole: action }} />}
                 </div>
                 <div className="lg:w-1/3">
                     {parcours.length > 0 && <TargetChart data={parcours} />}

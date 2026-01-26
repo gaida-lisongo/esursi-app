@@ -3,8 +3,10 @@
 import React, { useRef, useState } from "react";
 import {
     ChevronLeftIcon,
+    PlusIcon,
 } from "@/icons";
 import DecaissementCard from "./DecaissmentCard";
+import FormDecaissement from "../ecommerce/FormDecaissement";
 
 export interface Ordre {
     _id: string;
@@ -15,7 +17,8 @@ export interface Ordre {
     ligne?: any;
 }
 
-export const DecaissementCarousel = ({ data }: { data: any }) => {
+export const DecaissementCarousel = ({ data, onRefresh }: { data: any, onRefresh?: () => void }) => {
+    const [showForm, setShowForm] = useState(false);
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +27,21 @@ export const DecaissementCarousel = ({ data }: { data: any }) => {
             const { scrollLeft, clientWidth } = scrollRef.current;
             const scrollTo = direction === "left" ? scrollLeft - clientWidth / 2 : scrollLeft + clientWidth / 2;
             scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+        }
+    };
+
+    const handleFormSuccess = () => {
+        setShowForm(false);
+        // Appel du refresh pour mettre à jour les données
+        if (onRefresh) {
+            onRefresh();
+        }
+    };
+
+    const handlePlanDeleted = () => {
+        // Appel du refresh après suppression
+        if (onRefresh) {
+            onRefresh();
         }
     };
 
@@ -61,12 +79,18 @@ export const DecaissementCarousel = ({ data }: { data: any }) => {
                         Total Budget : {(data?.montant || 0).toLocaleString()}$ | Décaissé : {totalOK.toLocaleString()}$ | Reste : {Math.max(0, (data?.montant || 0) - totalOK).toLocaleString()}$
                     </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3 items-center">
                     <button
                         onClick={() => scroll("left")}
                         className="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm active:scale-95"
                     >
                         <ChevronLeftIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="p-3 bg-blue-500 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm active:scale-95"
+                    >
+                        <PlusIcon className="text-white hover:text-blue-600 transition-all" />
                     </button>
                     <button
                         onClick={() => scroll("right")}
@@ -77,17 +101,38 @@ export const DecaissementCarousel = ({ data }: { data: any }) => {
                 </div>
             </div>
 
-            <div
-                ref={scrollRef}
-                className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-                {decaissements.map((item: any) => (
-                    <div key={item.id} className="snap-start">
-                        <DecaissementCard item={item} />
-                    </div>
-                ))}
-            </div>
+            {
+                showForm ?
+                (
+                <div className="p-6 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
+                    <FormDecaissement 
+                        lignes={data?.details.map((detail: any) => ({ designation: detail.ligne?.designation, _id: detail?.ligne?._id }))} 
+                        onClose={() => setShowForm(false)}
+                        onSuccess={handleFormSuccess}
+                        budgetId={data?._id}
+                        titre={data?.designation}
+                    />
+                </div>
+                )
+                : (
+                <div
+                    ref={scrollRef}
+                    className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {decaissements.map((item: any) => (
+                        <div key={item.id} className="snap-start">
+                            <DecaissementCard 
+                                item={item} 
+                                onDeleted={handlePlanDeleted}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                )
+            }
+
         </div>
     );
 };
