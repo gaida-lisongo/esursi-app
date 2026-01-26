@@ -138,7 +138,7 @@ const OrdersModal = ({ orders, title, onClose, planId, allLignes, role, onUpdate
                             onClick={onClose}
                             className="w-10 h-10 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-500 font-bold"
                         >
-                            <CloseIcon className="w-5 h-5" />
+                            X
                         </button>
                     </div>
                 </div>

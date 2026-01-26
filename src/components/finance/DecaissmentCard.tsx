@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { DollarLineIcon, DownloadIcon, ListIcon, TrashBinIcon } from "@/icons";
 import OrdersModal from "./OrdersModal";
+import PiecesModal from "./PiecesModal";
 
 const DecaissementCard = ({ item, onDeleted }: { item: any, onDeleted?: () => void }) => {
     const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+    const [isPiecesOpen, setIsPiecesOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = async () => {
@@ -26,13 +28,16 @@ const DecaissementCard = ({ item, onDeleted }: { item: any, onDeleted?: () => vo
                     if (onDeleted) {
                         onDeleted();
                     }
+                } else {
+                    alert("Erreur lors de la suppression : " + result.message);
                 }
             } else {
-                alert("Erreur lors de la suppression du plan");
+                const errorData = await response.json().catch(() => ({ message: "Erreur de communication serveur" }));
+                alert("Erreur lors de la suppression : " + (errorData.message || response.statusText));
             }
         } catch (error) {
             console.error("Erreur lors de la suppression:", error);
-            alert("Erreur lors de la suppression du plan");
+            alert("Erreur réseau lors de la suppression du plan");
         } finally {
             setIsDeleting(false);
         }
@@ -75,11 +80,11 @@ const DecaissementCard = ({ item, onDeleted }: { item: any, onDeleted?: () => vo
                         <span className="text-[9px] font-black uppercase tracking-wider">Ordres ({item.ordres.length})</span>
                     </button>
                     <button
-                        onClick={() => console.log("Justificatifs :", item?.pieces)}
+                        onClick={() => setIsPiecesOpen(true)}
                         className="flex items-center justify-center gap-1 py-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all active:scale-95"
                     >
                         <DownloadIcon className="w-3 h-3" />
-                        <span className="text-[9px] font-black uppercase tracking-wider">Justifs</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider">Justifs ({item.pieces?.length || 0})</span>
                     </button>
                     <button
                         onClick={handleDelete}
@@ -106,6 +111,16 @@ const DecaissementCard = ({ item, onDeleted }: { item: any, onDeleted?: () => vo
                     allLignes={item.lignes}
                     role={item.role}
                     onClose={() => setIsOrdersOpen(false)}
+                    onUpdate={onDeleted}
+                />
+            )}
+
+            {isPiecesOpen && (
+                <PiecesModal
+                    pieces={item.pieces || []}
+                    title={item.periode}
+                    planId={item.id}
+                    onClose={() => setIsPiecesOpen(false)}
                     onUpdate={onDeleted}
                 />
             )}
